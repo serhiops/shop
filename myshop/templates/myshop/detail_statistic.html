@@ -1,0 +1,14 @@
+{% extends "myshop/base.html" %}
+
+{% block title %}Статистика по товару{% endblock %}
+
+{% block content %}
+<ul class="list-group">
+    <li class="list-group-item">продукт : <a href="{% url 'myshop:detail' product.pk product.slug %}">{{ product.name }}</a></li>
+    <li class="list-group-item">Количество просмотров : {{ product.total }}</li>
+    <li class="list-group-item">Добавлено в корзину : {{ much_fp }} раз</li>
+    <li class="list-group-item">Сделано заказов : {{ orderings }}</li>
+    <li class="list-group-item">Выполнено заказов : {{ done_orderings }}</li>
+    <li class="list-group-item">Рейтинг товара : {{ rating }}</li>
+</ul> 
+{% endblock %}

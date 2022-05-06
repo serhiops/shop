@@ -1,0 +1,93 @@
+{% extends "myshop/base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="row row-cols-1 row-cols-md-3 g-4">
+    {% for i in products %}
+    <div class="col">
+        <div class="card">
+            {% if i.product.is_active %}
+            <div class="card border-success mb-3">
+                {% else %}
+                <div class="card border-danger mb-3">
+                    {% endif %}
+                    {% if i.product.is_active %}
+                    <div class="card-header bg-transparent border-success">
+                        {% else %}
+                        <div class="card-header bg-transparent border-danger">
+                            {% endif %}
+                            Оформлено : {{ i.created|date:"Y.m.d H:i" }}
+                        </div>
+                        <div class="card-body text-success">
+                            <a href="{%if i.product.is_active %}{{ i.get_absolute_url }}{% else %}{% url 'statistic'%}{% endif %}">
+                                <h5 class="card-title">{{ i.product.name }}</h5>
+                            </a>
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item">Город : {{ i.user.city }}</li>
+                                <li class="list-group-item">Почтовое отделение : {{ i.post_office.name }}</li>
+                                <li class="list-group-item">Имя : {{ i.user.first_name }} {{ i.user.last_name }}</li>
+                                <li class="list-group-item">Контактный номер : {{ i.user.number_of_phone }}</li>
+                                <li class="list-group-item">Количество : {{ i.number }}</li>
+                            </ul>
+                            {% if step == 0 %}
+                            <button type="button" class="btn btn-success"onclick="window.location.href = '{% url 'myshop:set_is_take' i.pk %}'">Принять</button>
+                            {% endif %}
+                            {% if step == 1 %}
+                            <button type="button" class="btn btn-success"onclick="window.location.href = '{% url 'myshop:set_is_sent' i.pk %}'">Заказ отправлен</button>
+                            {% endif %}
+                        </div>
+                        {% if not i.product.is_active %}
+                        <div class="card-footer bg-transparent border-danger">
+                            <span style="width: 50%;">Товар неактивен</span>
+                            <button type="button" class="btn btn-success btn-sm"onclick="window.location.href = '{% url 'myshop:set_active' i.product.slug %}'" style="float: right;">Сделать активным</button>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+            {% if wait_products %}
+                {% for i in wait_products %}
+                <div class="col">
+                    <div class="card">
+                        {% if i.product.is_active %}
+                        <div class="card border-success mb-3">
+                            {% else %}
+                            <div class="card border-danger mb-3">
+                                {% endif %}
+                                {% if i.product.is_active %}
+                                <div class="card-header bg-transparent border-success">
+                                    {% else %}
+                                    <div class="card-header bg-transparent border-danger">
+                                        {% endif %}
+                                        Оформлено : {{ i.created|date:"Y.m.d H:i" }}
+                                    </div>
+                                    <div class="card-body text-success">
+                                        <a href="{%if i.product.is_active %}{% url 'detail' i.product.slug %}{% else %}{% url 'statistic'%}{% endif %}">
+                                            <h5 class="card-title">{{ i.product.name }}</h5>
+                                        </a>
+                                        <ul class="list-group list-group-flush">
+                                            <li class="list-group-item">Город : {{ i.user.city }}</li>
+                                            <li class="list-group-item">Почтовое отделение : {{ i.post_office.name }}</li>
+                                            <li class="list-group-item">Имя : {{ i.user.first_name }} {{ i.user.last_name }}</li>
+                                            <li class="list-group-item">Контактный номер : {{ i.user.number_of_phone }}</li>
+                                            <li class="list-group-item">Количество : {{ i.number }}</li>
+                                        </ul>
+                                    </div>
+                                    <div class="card-footer bg-transparent border-success">
+                                        <b>Ждем подтверждения посылки получателем</b> 
+                                    </div>
+                                    {% if not i.product.is_active %}
+                                    <div class="card-footer bg-transparent border-danger">
+                                        <span style="width: 50%;">Товар неактивен</span>
+                                        <button type="button" class="btn btn-success btn-sm"onclick="window.location.href = '{% url 'myshop:set_active' i.product.slug %}'" style="float: right;">Сделать активным</button>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+        {% endblock %}

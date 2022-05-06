@@ -1,0 +1,116 @@
+{% extends "myshop/base.html" %}
+
+{% block title %}Авторизація{% endblock %}
+
+{% block content %}
+
+<h1>Регистрация</h1>
+<br>
+{% if not salesman_register %}
+<p><a href="{% url 'myshop:register_salesman' %}">Я хочу стать продавцом</a></p>
+{% else %}
+<p><a href="{% url 'myshop:register' %}">Я хочу стать покупателем</a></p>
+{% endif %}
+<form method="post" class="row g-3">
+ 
+
+    {{ form.none_field.errors }}
+    
+    {% csrf_token %}
+    <div class="col-md-12">
+
+        <div class="mb-3">
+            <label for="{{ form.username.id_for_label }}">Username</label>
+            {{ form.username }}
+            <div class="invalid-feedback">
+                {{ form.username.errors }}
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label for="{{ form.first_name.id_for_label }}">Имя</label>
+            {{ form.first_name }}
+            <div class="invalid-feedback">
+                {{ form.first_name.errors }}
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label for="{{ form.last_name.id_for_label }}">Фамилия</label>
+            {{ form.last_name }}
+            <div class="invalid-feedback">
+                {{ form.last_name.errors }}
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label for="{{ form.number_of_phone.id_for_label }}">Номер телефона</label>
+            {{ form.number_of_phone }}
+            <div class="invalid-feedback">
+                {{ form.number_of_phone.errors }}
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label for="{{ form.age.id_for_label }}">Возраст</label>
+            {{ form.age }}
+            <div class="invalid-feedback">
+                {{ form.age.errors }}
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label for="{{ form.city.id_for_label }}">Город</label>
+            {{ form.city }}
+            <div class="invalid-feedback">
+                {{ form.city.errors }}
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label for="{{ form.email.id_for_label }}">Почта</label>
+            {{ form.email }}
+            <div class="invalid-feedback">
+                {{ form.email.errors }}
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label for="{{ form.password1.id_for_label }}">Пароль</label>
+            {{ form.password1 }}
+            <div class="invalid-feedback">
+                {{ form.password1.errors }}
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label for="{{ form.password2.id_for_label }}">Повторте пароль</label>
+            {{ form.password2 }}
+            <div class="invalid-feedback">
+                {{ form.password2.errors }}
+            </div>
+        </div>
+
+        {% if salesman_register %}
+        <div class="mb-3">
+            <label for="{{ form.company.id_for_label }}">Название компании</label>
+            {{ form.company }}
+            <div class="invalid-feedback">
+                {{ form.company.errors }}
+            </div>
+        </div> 
+        <div class="mb-3">
+            <label for="{{ form.is_salesman.id_for_label }}">Я хочу стать продавцом</label>
+            {{ form.is_salesman }}
+            <div class="invalid-feedback">
+                {{ form.is_salesman.errors }}
+            </div>
+        </div> 
+        {% endif %}
+        {{ form.captcha }}
+
+        <button type="submit" class="btn btn-primary btn-block col-12">Отправить код на почту</button>
+    </div>
+</form>
+
+{% endblock %}

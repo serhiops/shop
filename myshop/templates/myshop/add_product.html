@@ -1,0 +1,58 @@
+{% extends "myshop/base.html" %}
+
+{% block title %}Добавить товар{% endblock %}
+
+{% block content %}
+
+<h1>Добавить товар</h1>
+<br>
+
+<form method="post" class="row g-3" action="{% url 'myshop:add_product' %}"enctype='multipart/form-data'>
+    {{ form.none_field.errors }}
+    {% csrf_token %}
+    <div class="col-12">
+        <div class="mb-3">
+            <label for="{{ form.name.id_for_label }}">Название</label>
+            {{ form.name }}
+            <div class="invalid-feedback">
+                {{ form.name.errors }}
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label for="{{ form.description.id_for_label }}">Описание</label>
+            {{ form.description }}
+            <div class="invalid-feedback">
+                {{ form.description.errors }}
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label for="{{ form.image.id_for_label }}">Изображение</label>
+            {{ form.image }}
+            <div class="invalid-feedback">
+                {{ form.image.errors }}
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label for="{{ form.price.id_for_label }}">Цена</label>
+            {{ form.price }}
+            <div class="invalid-feedback">
+                {{ form.city.price }}
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label for="{{ form.category.id_for_label }}">Категория</label>
+            {{ form.category }}
+            <div class="invalid-feedback">
+                {{ form.city.category }}
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block col-12">Разместить</button>
+    </div>
+</form>
+
+{% endblock %}

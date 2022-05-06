@@ -1,0 +1,41 @@
+{% extends "myshop/base.html" %}
+
+{% block title %}Провиль пользователя : {{ user.username }} {% endblock %}
+
+{% block content %}
+
+
+  <ul class="list-group" id="dataList" userid = "{{ user.id }}">
+    <li class="list-group-item" id="username">Никнейм : {{ user.username }}</li>
+    <li class="list-group-item" id="name">Имя : {{ user.first_name }}</li>
+    <li class="list-group-item" id="sername">Фамилия : {{ user.last_name }}</li>
+    <li class="list-group-item" id="email">Почта : {{ user.email }}</li>
+    <li class="list-group-item" id="phone">Номер телефона : {{ user.number_of_phone }}</li>
+    <li class="list-group-item" id="joined">На сайте с : {{user.date_joined}}</li>
+    <li class="list-group-item" id="age">Возраст : {{user.age}}</li>
+  </ul>
+
+<br>
+
+<button type="button" class="btn btn-primary" id="changeUserData">Изменить данные</button>
+
+<button type="button" class="btn btn-primary"onclick="window.location.href = '{% url 'myshop:change_email' %}'">Изменить почту</button>
+<button type="button" class="btn btn-primary"onclick="window.location.href = '{% url 'myshop:change_password' %}'">Изменить пароль</button>
+{% if user.is_salesman %}
+<button type="button" class="btn btn-primary"onclick="window.location.href = '{% url 'myshop:add_product' %}'">Разместить товар</button>
+<button type="button" class="btn btn-primary"onclick="window.location.href = '{% url 'myshop:statistic' %}'">Просмотреть статистику</button>
+
+<button type="button" class="btn btn-primary"onclick="window.location.href = '{% url 'myshop:backorders' %}'">Заказанные товары</button>
+<span class="badge bg-primary rounded-pill">{{backorders_count}}</span>
+
+<button type="button" class="btn btn-primary"onclick="window.location.href = '{% url 'myshop:accepted_products' %}'">Принятые заказы</button>
+
+<button type="button" class="btn btn-primary"onclick="window.location.href = '{% url 'myshop:completed_orders' %}'">Выполненые товары</button>
+
+{% else %}
+<button type="button" class="btn btn-primary"onclick="window.location.href = '{% url 'myshop:user_orders' %}'">Выполненые заказы</button>
+{% if active_oders_count %}
+<button type="button" class="btn btn-primary"onclick="window.location.href = '{% url 'myshop:user_active_oders' %}'">Активные заказы</button>
+{% endif %}
+{% endif %}
+{% endblock %}

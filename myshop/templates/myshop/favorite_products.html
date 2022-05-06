@@ -1,0 +1,35 @@
+{% extends "myshop/base.html" %}
+
+{% block title %} Корзина {% endblock %}
+ 
+{% block content %} 
+<div class="card-group">
+    {% for i in fav_pr %}
+        <div class="card">
+            <img src="{{ i.product.photos.first.image.url }}" class="card-img-top" alt="..." width="150" height="250">
+            <div class="card-body">
+                <h5 class="card-title">{{ i.product.name }}</h5>
+                <p class="card-text">{{ i.product.description|linebreaks|truncatechars:150 }}</p>
+            </div>
+            <div class="card-footer">
+                <small class="text-muted" style="width: 50%;">Создано : {{ i.product.created|date:"Y.m.d H:i" }}</small>
+                <small class="text-muted" style="float: right;">В корзине с {{ i.added|date:"Y.m.d H:i" }}</small>
+            </div>
+            {% if i.product.is_active %}
+            <button type="button" class="btn btn-primary" onclick="window.location.href = '{{ i.product.get_absolute_url }}'">Детально</button>
+            <button type="button" class="btn btn-warning"onclick="window.location.href = '{{ i.get_absolute_url_to_Ordering }}'">Оформить заказ</button>
+            <form method="post">
+                {% csrf_token %}
+                <button type="button" id="{{ i.pk }}"  class="btn btn-outline-info"value="{{ i.get_absolute_url_to_chat }}" onclick="addRoom(this.value, this.id)">Написать продавцу</button>
+            </form>
+            {% else %}
+            <p style="text-align: center;"><b>К сожелению, продавец скрыл товар:(</b></p>
+            {% endif %}
+            
+            <button type="button" class="btn btn-danger" onclick="window.location.href = '{{ i.get_absolute_url }}'">Удалить</button>
+        </div>
+    {% endfor %}
+</div>
+</div>
+{% endblock %}
+<!--id="chat{{i.id}}"-->

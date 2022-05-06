@@ -1,0 +1,35 @@
+
+
+
+<form method="post" class="row g-3">
+    {{ form.none_field.errors }}
+    {% csrf_token %}
+    <div class="row g-3">
+
+        <div class="col-md-4">
+            <label for="{{ form.begin_price.id_for_label }}" >Цена</label>
+            {{ form.begin_price }}
+            <div class="invalid-feedback">
+                {{ form.begin_price.errors }}
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <label for="{{ form.end_price.id_for_label }}"></label>
+            {{ form.end_price }}
+            <div class="invalid-feedback">
+                {{ form.end_price.errors }}
+            </div>
+        </div>
+        <div class="col-md-4">
+            <label for="{{ form.city.id_for_label }}" style="float: right;">Найдено : <small id="productsCount"></small></label>
+            {{ form.city }}
+            <div class="invalid-feedback">
+                {{ form.city.errors }}
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block col-12">Искать</button>
+
+    </div>
+</form>

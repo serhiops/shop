@@ -1,0 +1,57 @@
+{% extends "myshop/base.html" %}
+
+{% block title %}Статистика{% endblock %}
+
+{% block content %}
+<ul class="list-group">
+    <li class="list-group-item">Количество просмотров : {{ much_views }}</li>
+    <li class="list-group-item">Количество товаров, добавленных в корзину : {{ much_fp }}</li>
+    <li class="list-group-item">Максимальное количество просмотров : {{ max_views }}</li>
+    <li class="list-group-item">Минимальное количество просмотров : {{ min_views }}</li>
+    <li class="list-group-item">Количество заказов : {{ orderings }}</li>
+    <li class="list-group-item">Количество выполнененых заказов : {{ done_orderings }}</li>
+    <li class="list-group-item">Количество лайков : {{ count_likes }}</li>
+    <li class="list-group-item">Количесвто дизлайков : {{ count_dislikes }}</li>
+    <li class="list-group-item">Средний рейтинг товаров : {{ rating }}</li>
+</ul>
+<br>
+<div class="card-group row-cols-3">
+    {% for i in products %}
+    <div class="col" id="{{ i.pk }}">
+        <div class="card-footer">
+            {% if i.is_active %}
+            <small class="text" style="color: green;width: 50%;"><b>Активно</b></small>
+            {% else %}
+            <small class="text" style="color: red;width: 50%;"><b>Неактивно</b></small>
+            {% endif %}
+            <small class="text" style="float: right;">Цена : {{ i.price }} грн.</small>
+        </div>
+        <div class="card">
+
+            <img src="{{ i.photos.first.image.url }}" class="card-img-top" alt="..." width="250" height="150">
+
+            <div class="card-body">
+                <h5 class="card-title">{{ i.name }}</h5>
+                <p class="card-text">{{ i.description|truncatechars:150 }}</p>
+            </div>
+            <button type="button" class="btn btn-primary"onclick="window.location.href = '{{ i.get_absolute_url_detail_statistic }}'"style="margin-bottom: 5px;">Детально</button>
+            {% if i.is_active %}
+            <button type="button" class="btn btn-primary"onclick="window.location.href = '{{ i.get_absolute_url }}'">Перейти на страницу с товаром</button>
+            <button type="button"  class="btn btn-danger" style="margin-top: 5px;"onclick="window.location.href = '{{ i.get_absolute_url_delete_product }}'">Сделать неактивным</button>
+            {% else %}
+            <button type="button"  class="btn btn-success"onclick="window.location.href = '{{ i.get_absolute_url_setActive_product }}'">Сделать активным</button>
+            {% endif %}
+            <button type="button" class="btn btn-success"onclick="window.location.href = '{{ i.get_absolute_url_change_product }}'"style="margin-top: 5px;">Изменить</button>
+        </div>
+        <div class="card-footer">
+            <small class="text-muted" style="width: 50%;">Опубликовано:{{ i.created|date:"Y.m.d H:i" }}</small>
+            {% if i.updated != i.created %}
+            <small class="text-muted" style="float: right;">Изменено:{{ i.updated|date:"Y.m.d H:i" }}</small>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
+
+

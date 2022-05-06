@@ -1,0 +1,41 @@
+
+
+
+<div class="container" align = "center">
+    <div class="row">
+        <div class="col-12">
+            <div id="carouselExampleControls" class="carousel slide" data-bs-ride="carousel">
+                <div class="carousel-inner">
+                    <div class="carousel-item active" style="height: 400px;">
+                        <img src="{{ images.0.image.url }}" class="d-block w-25" alt="..." style="height: 400px;">
+                    </div>
+                    {% for i in images %}
+                    <div class="carousel-item" style="height: 400px;">
+                        <img src="{{ i.image.url }}" class="d-block w-25" alt="..." style="height: 400px;">
+                    </div>
+                    {% endfor %}
+                </div>
+                <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Previous</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Next</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<ul class="list-group">
+    <li class="list-group-item">Название : {{ product.name }}</li>
+    <li class="list-group-item">Описание : {{ product.description }}</li>
+    <li class="list-group-item">Продавец : {{ product.salesman.company }}</li>
+    <li class="list-group-item">Создано : {{ product.created }}</li>
+    {% if product.created != product.updated %}
+    <li class="list-group-item">Изменено : {{ product.updated }}</li>
+    {% endif %}
+    <li class="list-group-item">Стоимость : {{ product.price }} грн.</li>
+    <li class="list-group-item">Просмотрело : {{ product.total }} человек</li>
+</ul>

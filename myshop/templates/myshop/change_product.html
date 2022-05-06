@@ -1,0 +1,47 @@
+{% extends "myshop/base.html" %}
+
+{% block title %}Изменение товара{% endblock %}
+
+{% block content %}
+
+<h1>Изменение товара</h1>
+<br>
+
+<form method="post" class="row g-3">
+    {{ form.none_field.errors }}
+    {% csrf_token %}
+    <div class="col-md-12">
+        <div class="mb-3">
+            <label for="{{ form.name.id_for_label }}">Название</label>
+            {{ form.name }}
+            <div class="invalid-feedback">
+                {{ form.name.errors }}
+            </div>
+        </div>
+        <div class="mb-3">
+            <label for="{{ form.description.id_for_label }}">Описание</label>
+            {{ form.description }}
+            <div class="invalid-feedback">
+                {{ form.description.errors }}
+            </div>
+        </div>
+        <div class="mb-3">
+            <label for="{{ form.image.id_for_label }}">Изображение</label>
+            {{ form.image }}
+            <div class="invalid-feedback">
+                {{ form.image.errors }}
+            </div>
+        </div>
+        <div class="mb-3">
+            <label for="{{ form.price.id_for_label }}">Цена</label>
+            {{ form.price }}
+            <div class="invalid-feedback">
+                {{ form.price.errors }}
+            </div>
+        </div>
+    </div>
+    <button type="submit" class="btn btn-primary btn-block col-12">Изменить</button>
+    </div>
+</form>
+
+{% endblock %}

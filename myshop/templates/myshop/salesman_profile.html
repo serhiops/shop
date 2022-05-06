@@ -1,0 +1,29 @@
+{% extends "myshop/base.html" %}
+
+{% block title %}Продавец : {{ salesman.username }}{% endblock %}
+
+{% block content %}
+<ul class="list-group">
+    <li class="list-group-item">Компания : {{ salesman.company }}</li>
+    <li class="list-group-item">Количество товаров : {{ products_count }}</li>
+    <li class="list-group-item">Рейтинг продавца : {{ rating }}</li>
+    <li class="list-group-item">Выполненные заказы : {{ done_orderings }}</li>
+    <li class="list-group-item">На сайте уже : {{ salesman.date_joined|timesince }}</li>
+</ul>
+<div class="card-group">
+    {% for i in products %}
+    <div class="card">
+        <img src="{{ i.photos.first.image.url }}" class="card-img-top" alt="Товар" height="200px">
+        <div class="card-body">
+            <h5 class="card-title">{{ i.name }}</h5>
+            <p class="card-text">{{ i.description|truncatewords:25 }}</p>
+        </div>
+        <button type="button" class="btn btn-primary" onclick="window.location.href = '{{ i.get_absolute_url }}'">Детально</button>
+        <div class="card-footer">
+                <small class="text-muted" style="width: 50%;">Опубликовано : {{ i.created|date:"Y.m.d H:i" }}</small>
+                <small class="text-muted" style="float: right;">Цена : {{ i.price }}</a></small>
+        </div>
+    </div>
+    {% endfor %}
+</div> 
+{% endblock %}

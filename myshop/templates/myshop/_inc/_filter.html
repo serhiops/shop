@@ -1,0 +1,10 @@
+<form class="d-flex" method="post">
+    {{ form.none_field.errors }}
+    {% csrf_token %}
+    <label for="{{ form.text.id_for_label }}"></label>
+    {{ form.text }}
+    <div class="invalid-feedback">
+        {{ form.text.errors }}
+    </div>
+    <button class="btn btn-outline-success" type="search" name="search">Search</button>
+</form>

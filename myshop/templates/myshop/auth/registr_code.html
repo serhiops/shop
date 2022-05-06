@@ -1,0 +1,25 @@
+{% extends "myshop/base.html" %}
+
+{% block title %}Подтвеждение почты{% endblock %}
+
+{% block content %}
+
+<h1>Подтверждение почты</h1>
+<br>
+
+<form method="post" class="row g-3">
+    {{ form.none_field.errors }}
+    {% csrf_token %}
+    <div class="col-md-12">
+        <div class="mb-3">
+            <label for="{{ form.code.id_for_label }}">Код с почты</label>
+            {{ form.code }}
+            <div class="invalid-feedback">
+                {{ form.code.errors }}
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block col-12">Зарегистрироваться</button>
+    </div>
+</form>
+
+{% endblock %}

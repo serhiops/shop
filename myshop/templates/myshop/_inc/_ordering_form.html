@@ -1,0 +1,25 @@
+
+
+
+<form method="post" class="row g-3" id="orderingForm">
+    {{ form.none_field.errors }}
+    {% csrf_token %}
+    <div class="row g-3">
+        <div class="col-md-6">
+            <label for="{{ form.post_office.id_for_label }}">Почтовое отделение</label>
+            {{ form.post_office }}
+            <div class="invalid-feedback">
+                {{ form.post_office.errors }}
+            </div>
+        </div>
+        <div class="col-md-6">
+            <label for="{{ form.number.id_for_label }}">Количество</label>
+            {{ form.number }}
+            <div class="invalid-feedback">
+                {{ form.number.errors }}
+            </div>
+        </div>
+    </div>
+        <button type="submit" class="btn btn-primary btn-block col-12">Подтвердить</button>
+    </div>
+</form>

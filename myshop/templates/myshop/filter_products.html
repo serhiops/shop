@@ -1,0 +1,23 @@
+{% extends "myshop/base.html" %}
+
+
+{% block title %} Посик по запросу {% endblock %}
+
+{% block content %}
+
+<div class="row row-cols-1 row-cols-md-3 g-4">
+    <div class="col">
+        {% for i in products %}
+        <div class="card">
+            <img src="{{ i.photos.first.image.url }}" class="card-img-top" alt="..." width="250" height="150">
+            <div class="card-body">
+                <h5 class="card-title">{{ i.name }}</h5>
+                <p class="card-text">{{ i.description|truncatechars:150 }}</p>
+            </div>
+            <button type="button" class="btn btn-primary" onclick="window.location.href = '{{ i.get_absolute_url }}'">Детально</button>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+{% endblock %}

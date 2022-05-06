@@ -1,0 +1,48 @@
+.chat-box{
+    border: 1px solid #2d2d2d; 
+    padding: 10px 10px 5px; 
+    margin-bottom: 15px;
+}
+
+.del-message-cur-user{
+    border: 1px solid #2d2d2d;
+    padding: 5px; 
+    border-radius: 15px; 
+    padding: 5px;
+    margin-bottom: 5px;
+    display: inline-block;
+}
+
+.del-message-other-user{
+    border: 1px solid #2d2d2d;
+    padding: 5px;
+    border-radius: 15px; 
+    padding: 5px;
+    margin-bottom: 5px; 
+    float: right;
+}
+
+.del-message-text{
+    margin-bottom: 5px;
+    color: red;
+}
+
+.active-message-cur-user{
+    border: 1px solid #2d2d2d;
+    border-radius: 15px; 
+    text-align: center; 
+    padding: 5px;
+    margin-bottom: 5px;
+    display: inline-block;
+}
+
+.active-message-other-user{
+    border: 1px solid #2d2d2d;
+    border-radius: 15px; 
+    text-align: center; 
+    padding: 5px;
+    margin-bottom: 5px;
+    max-width: 30%; 
+    float: right;
+}
+

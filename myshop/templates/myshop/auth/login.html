@@ -1,0 +1,32 @@
+{% extends "myshop/base.html" %}
+
+{% block title %}Авторизация{% endblock %}
+
+{% block content %}
+
+<h1>Авторизация</h1>
+<br>
+
+<form method="post" class="row g-3">
+    {{ form.none_field.errors }}
+    {% csrf_token %}
+    <div class="col-md-12">
+        <div class="mb-3">
+            <label for="{{ form.username.id_for_label }}">Username</label>
+            {{ form.username }}
+            <div class="invalid-feedback">
+                {{ form.username.errors }}
+            </div>
+        </div>
+        <div class="mb-3">
+            <label for="{{ form.password.id_for_label }}">Пароль</label>
+            {{ form.password }}
+            <div class="invalid-feedback">
+                {{ form.password.errors }}
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block col-12">Ввойти</button>
+    </div>
+</form>
+<p><a href="{% url 'myshop:password_reset' %}">Забыл пароль</a></p>
+{% endblock %}

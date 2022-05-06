@@ -1,0 +1,26 @@
+{% extends "myshop/base.html" %}
+
+{% block title %} {{ title }} {% endblock %}
+
+{% block content %}
+<div class="container px-4 py-5" id="hanging-icons">
+    {% if user.is_authenticated %}
+    <h2 class="pb-2 border-bottom">Добро пожаловать, {{user.username}}</h2>
+    {% else %}
+    <h2 class="pb-2 border-bottom">Добро пожаловать в наш магазин!</h2>
+    {% endif %}
+    <div class="row g-4 py-5 row-cols-1 row-cols-lg-3">
+        {% for i in categories %}
+        <div class="col d-flex align-items-start">
+            <div>
+                <h2>{{ i.name }}</h2>
+                <p>{{ i.description }}</p>
+                <a href="{{ i.get_absolute_url }}" class="btn btn-primary">
+                    Перейти к товару
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

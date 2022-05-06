@@ -1,0 +1,33 @@
+{% extends "myshop/base.html" %}
+
+{% block title %}Мои заказы{% endblock %}
+
+{% block content %}
+<div class="row row-cols-1 row-cols-md-3 g-4">
+    {% for i in orders %}
+    <div class="col">
+        <div class="card-footer">
+            <small class="text" style="width: 50%;color:green">Выполнено</small>
+            <small class="text" style="float: right;">Цена : {{ i.product.price }} грн.</small>
+        </div>
+        <div class="card">
+            <img src="{{ i.product.photos.first.image.url }}" class="card-img-top" alt="Изображение" width="250" height="150">
+            <div class="card-body">
+                <h5 class="card-title">{{ i.product.name }}</h5>
+                <p class="card-text">{{ i.product.description|truncatechars:150 }}</p>
+            </div>
+
+            {% if i.product.is_active %}
+            <button type="button" class="btn btn-primary"onclick="window.location.href = '{{ i.get_absolute_url_to_product }}'">Оставить коментарий</button>
+            {% else %}
+            <p style="text-align: center;"><b style="color: #ff0000;">К сожелению, продавец удалил товар:(</b></p>
+            {% endif %}
+        </div>
+        <div class="card-footer">
+            <small class="text-muted" style="width: 50%;">Оформлено : {{ i.created }}</small>
+            <small class="text-muted" style="float: right;">Количество : {{ i.number }}</small>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

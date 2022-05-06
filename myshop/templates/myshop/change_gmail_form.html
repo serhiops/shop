@@ -1,0 +1,26 @@
+{% extends "myshop/base.html" %}
+
+{% block title %}Изменение почты{% endblock %}
+
+{% block content %}
+
+<h1>Изменение почты</h1>
+<br>
+
+<form method="post" class="row g-3">
+    {{ form.none_field.errors }}
+    {% csrf_token %}
+    <div class="col-md-12">
+        <div class="mb-3">
+            <label for="{{ form.email.id_for_label }}">Email</label>
+            {{ form.email }}
+            <div class="invalid-feedback">
+                {{ form.email.errors }}
+            </div>
+        </div>
+    </div>
+    <button type="submit" class="btn btn-primary btn-block col-12">Изменить</button>
+    </div>
+</form>
+
+{% endblock %}

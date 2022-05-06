@@ -1,0 +1,23 @@
+{% extends "myshop/base.html" %}
+
+{% block title %}Изменение коментария{% endblock %}
+
+{% block content %}
+
+<h1>Изменение коментария</h1>
+<br>
+
+<form method="post" class="row g-3">
+    {{ form.none_field.errors }}
+    {% csrf_token %}
+
+    <label for="{{ form.text.id_for_label }}">Новый коментарий</label>
+    {{ form.text }}
+    <div class="invalid-feedback">
+        {{ form.text.errors }}
+    </div>
+
+    <button type="submit" class="btn btn-primary btn-block col-12">Изменить</button>
+</form>
+
+{% endblock %}

@@ -1,0 +1,53 @@
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="{% url 'myshop:index' %}">Главная</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          {% if user.is_authenticated %}
+          {% if not user.is_salesman %}
+          <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="{% url 'myshop:favorite_products' %}">Корзина</a>
+          </li>
+          {% endif %}
+          {% if user.is_active %}
+          <li class="nav-item">
+            <a class="nav-link active" href="{% url 'myshop:user_profile' %}">Мой профиль</a>
+          </li>
+          {% endif %}
+          {% if side%}
+          <li class="nav-item">
+            <a class="nav-link " href="{% url 'myshop:logout' %}">Выйти</a>
+          </li>
+          {% endif %}
+          {% else %}
+          <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="{% url 'myshop:register' %}">Зарегестрироваться</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="{% url 'myshop:login' %}">Авторизироваться</a>
+          </li>
+          {% endif %}
+          <li class="nav-item dropdown">
+            {% if not side%}
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              Категории
+            </a>
+            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+              {% for i in categories %}
+              <li><a class="dropdown-item" href="{{ i.get_absolute_url }}">{{ i.name }}</a></li>
+              {% endfor %}
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item" href="{% url 'myshop:index' %}">Главная</a></li>
+            </ul>
+            {% endif %}
+          </li>
+        </ul>
+        {% if side %}
+        {% include "myshop/_inc/_filter.html" %}
+        {% endif %}
+      </div>
+    </div>
+  </nav>
