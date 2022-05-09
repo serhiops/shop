@@ -43,18 +43,22 @@ INSTALLED_APPS = [
     "captcha",
     "djmoney",
     'channels',
-    'chat.apps.ChatConfig'
+    'chat.apps.ChatConfig',
+    "corsheaders",
 ]
 AUTH_USER_MODEL = 'myshop.CustomUser'
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    "corsheaders.middleware.CorsMiddleware",
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+CORS_ALLOW_ALL_ORIGINS = True
 
 ROOT_URLCONF = 'shop.urls'
 
@@ -126,6 +130,7 @@ STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'shop/static'),
+    os.path.join(BASE_DIR, 'myshop/templates/myshop/react_pages'),
 ]
 
 MEDIA_URL = '/images/'

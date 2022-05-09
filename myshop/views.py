@@ -72,9 +72,8 @@ class ByCategory(ListView, FormView):
         func.get_error_messages(self.request, form)
         return super().form_invalid(form)        
 
-class ProductDetail(DetailView, FormView):
-    form_class = forms.ComentForm
-    template_name = "myshop/detail.html"
+class ProductDetail(DetailView):
+    template_name = "myshop/react_pages/detail/index.html"
     context_object_name = "product"
     model = Product
 
@@ -86,17 +85,12 @@ class ProductDetail(DetailView, FormView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        product = self.get_queryset()
         context["categories"] = Category.objects.all()
-        context["coments"] = product.get_prd.all()
-        context["images"] = Photo.objects.filter(product = product)
         if not self.request.user.is_authenticated:
-            context["can_coment"] = False
+            context["is_bought"] = False
         else:
-            context["can_coment"] = Ordering.objects.filter(user = self.request.user, product = product)
-        context["count_likes"] = Mark.objects.filter(product = product, like = True).count()
-        context["count_dislikes"] = Mark.objects.filter(product = product, dislike = True).count()
-        context["detail_js"] = True
+            context["is_bought"] = Ordering.objects.filter(user = self.request.user, product = self.get_queryset())
+        context['react_detail'] = True
         return context
 
     def get(self, request, *args, **kwargs):
@@ -107,10 +101,6 @@ class ProductDetail(DetailView, FormView):
             Ip.objects.create(ip=ip)
             self.get_object().views.add(Ip.objects.get(ip=ip))  
         return super().get(request, *args, **kwargs)
-
-    def form_invalid(self, form):
-        func.get_error_messages(self.request, form)
-        return super().form_invalid(form)
 
 def add_to_favoriteProducts(request, pk):
     add = True
@@ -562,3 +552,6 @@ class PasswordResetConfirm(SuccessMessageMixin, PasswordResetConfirmView):
         form.fields["new_password1"].widget.attrs["class"] = "form-control"
         form.fields["new_password2"].widget.attrs["class"] = "form-control"
         return form
+
+def test(request):
+    return render(request, '')

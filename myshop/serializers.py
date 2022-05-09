@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Product, Mark, Coments, CustomUser, FavoriteProducts, Rating, PostOfices, Ordering
+from .models import Product, Mark, Coments, CustomUser, FavoriteProducts, Rating, PostOfices, Ordering, Photo
 
 class ProductSerializer(serializers.ModelSerializer):
     class Meta:
@@ -54,4 +54,9 @@ class PostOficesSerializer(serializers.ModelSerializer):
 class OrderingSerializer(serializers.ModelSerializer):
     class Meta:
         model = Ordering
+        fields = "__all__" 
+
+class PhotoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Photo
         fields = "__all__" 

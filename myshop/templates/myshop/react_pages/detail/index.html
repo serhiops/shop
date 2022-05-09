@@ -1,0 +1,20 @@
+{% extends "myshop/base.html" %}
+
+{% block content %}
+<div id="product"></div>
+
+{% if not user.is_salesman and user.is_authenticated %}
+<button type="submit" class="btn btn-secondary" style="margin: 10px 0 10px 0;"
+    onclick="window.location.href = '{{ product.get_absolute_url_add_to_favoriteProducts }}'">Добавить в корзину</button>
+{% elif not user.is_authenticated %}
+<button type="submit" class="btn btn-secondary"onclick="window.location.href = '{% url 'myshop:login' %}'">Чтобы добавлить товар в корзину вам нужно зарегестрироваться</button>
+<br>
+{% endif %}
+
+
+<div id="likes" {% if user.is_anonymous or user == product.salesman %} hidden {% endif %}></div>
+<div id="rating" {% if user.is_anonymous or not is_bought %} hidden {% endif %}></div>
+<br>
+<div id="coment-form" {% if user.is_anonymous %} hidden {% endif %}></div>
+
+{% endblock %}

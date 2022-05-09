@@ -64,7 +64,7 @@
                                         Оформлено : {{ i.created|date:"Y.m.d H:i" }}
                                     </div>
                                     <div class="card-body text-success">
-                                        <a href="{%if i.product.is_active %}{% url 'detail' i.product.slug %}{% else %}{% url 'statistic'%}{% endif %}">
+                                        <a href="{%if i.product.is_active %}{% url 'myshop:detail' i.pk i.product.slug %}{% else %}{% url 'myshop:statistic'%}{% endif %}">
                                             <h5 class="card-title">{{ i.product.name }}</h5>
                                         </a>
                                         <ul class="list-group list-group-flush">

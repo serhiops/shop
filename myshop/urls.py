@@ -9,12 +9,13 @@ routerComent = routers.SimpleRouter()
 routerUser = routers.SimpleRouter()
 routerFavoriteProducts = routers.SimpleRouter()
 routerRating = routers.SimpleRouter()
-
+routerPhoto = routers.SimpleRouter()
 
 routerComent.register(r'coment', api.ComentViewset)
 routerUser.register(r'user', api.UserViewset)
 routerFavoriteProducts.register(r'favoriteProducts', api.FavoriteProductsViewset)
 routerRating.register(r'rating', api.RatingViewset)
+routerPhoto.register(r'photo', api.PhotoApi)
 
 urlpatterns = [
     path("by_category/<slug:cat_slug>/", ByCategory.as_view(), name = "by_category"),
@@ -66,5 +67,10 @@ urlpatterns = [
     path("api/v1/product_filter/", api.GetProductsFilter.as_view()),
     path("api/v1/post_ofices/", api.GetPostOficesList.as_view()),
     path("api/v1/get_ordering/", api.GetOrderDataList.as_view()),
-    path("api/v1/rating_marks_comentsList/", api.GetRatingMarksComentsList.as_view())
+    path("api/v1/rating_marks_comentsList/", api.GetRatingMarksComentsList.as_view()),
+
+    path("api/v1/react/<int:pk>/", api.ReactAPI.as_view()),
+    path('api/v1/react/', api.ReactAPIPost.as_view()),
+    path('api/v1/react-mark/', api.ReactMarkApi.as_view()),
+    path('api/v1/', include(routerPhoto.urls))
 ]

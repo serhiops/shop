@@ -1,5 +1,5 @@
 from django.forms import ValidationError
-from .models import CustomUser, Product, Mark, Coments, FavoriteProducts, Rating, PostOfices, Ordering
+from .models import CustomUser, Product, Mark, Coments, FavoriteProducts, Rating, PostOfices, Ordering, Photo
 from . import serializers
 from django.utils.text import slugify
 from rest_framework import generics
@@ -9,8 +9,9 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import views
-from django.db.models import Q
+from django.db.models import Q, Avg
 
+REACT = False 
 
 class ProductAPIList(generics.ListCreateAPIView):
     queryset = Product.objects.all()
@@ -94,7 +95,15 @@ class ComentViewset(ModelViewSet):
 
     def list(self, request, *args, **kwargs):
         coments = Coments.objects.all()
-        return Response({"coments":serializers.ComentsSerializer(coments,many=True).data, "current_user":serializers.UserSerializer(request.user).data})
+        return Response({"coments":serializers.ComentsSerializer(coments,many=True).data, 
+                        "current_user":serializers.UserSerializer(request.user).data})
+
+    def create(self, request, *args, **kwargs):
+        _mutable = request.data._mutable
+        request.data._mutable = True
+        request.data["author"] = 1
+        request.data._mutable = _mutable
+        return super().create(request, *args, **kwargs)
 
 class UserViewset(ModelViewSet):
     queryset = CustomUser.objects.all()
@@ -184,6 +193,111 @@ class GetRatingMarksComentsList(generics.ListAPIView):
                         "rating":serializers.RatingSerializer(rating, many = True).data,
                         "user":serializers.UserSerializer(self.request.user).data})
 
+class ReactAPI(generics.RetrieveDestroyAPIView):
+    queryset = Product.objects.all()
+    serializer_class = serializers.ProductSerializer
+
+    def get(self, request, *args, **kwargs):
+        product = Product.objects.get(pk = kwargs["pk"])
+        image =serializers.PhotoSerializer(product.photos.all(), many = True).data
+        coments = Coments.objects.filter(product = product)
+        rating = Rating.objects.filter(product = product)
+        likes = Mark.objects.filter(product = product, like = True)
+        dislikes = Mark.objects.filter(product = product, dislike = True)
+        if request.user.id == None:
+            return Response({
+                'product':serializers.ProductSerializer(product).data, 
+                'likes':likes.count(),
+                'dislikes': dislikes.count(), 
+                'current_user': False,
+                "coments":serializers.ComentsSerializer(coments, many = True).data,
+                'company_name':product.salesman.company,
+                'images':image
+            })
+        if REACT:
+            current_user = CustomUser.objects.get(pk = 1)
+        else:
+            current_user = self.request.user
+        is_liked_by_current_user = likes.filter(user = current_user).count()
+        is_disliked_by_current_user = dislikes.filter(user = current_user).count()
+        try:
+            current_user_rating = serializers.RatingSerializer(rating.get(user = current_user)).data
+        except:
+            current_user_rating = False
+        if Ordering.objects.filter(user = current_user, product = product):
+            is_bought = True
+        else:
+            is_bought = False
+        return Response({'product':serializers.ProductSerializer(product).data, 
+                        'likes':likes.count(),
+                        'dislikes': dislikes.count(), 
+                        'current_user': serializers.UserSerializer(current_user).data,
+                        "is_liked_by_current_user":bool(is_liked_by_current_user),
+                        "is_disliked_by_current_user":bool(is_disliked_by_current_user),
+                        "coments":serializers.ComentsSerializer(coments, many = True).data,
+                        "rating":serializers.RatingSerializer(rating, many = True).data,
+                        "current_user_rating":current_user_rating,
+                        "average_rating": rating.aggregate(avg = Avg('rating'))['avg'],
+                        'images':image,
+                        'is_bought':is_bought,
+                        'company_name':product.salesman.company})
+
+class ReactAPIPost(generics.ListCreateAPIView):
+    queryset = Mark.objects.all()
+    serializer_class = serializers.MarkSerializer
+
+    def post(self, request, *args, **kwargs):
+        if REACT:
+            user = CustomUser.objects.get(pk = 1)
+        else:
+            user = self.request.user
+        product = Product.objects.get(pk = request.data["product"])
+        if request.data.get('like', False):
+            mark, created = Mark.objects.get_or_create(product = product, user = user)
+            if not created and mark.like == True:
+                mark.delete()
+                return Response({"delete":True})
+            elif mark.dislike:
+                mark.dislike = False
+                mark.like = True
+            else:
+                mark.like = True
+            mark.save(update_fields=['like', 'dislike'])
+        elif request.data.get('dislike', False):
+            mark, created = Mark.objects.get_or_create(product = product, user = user)
+            if not created and mark.dislike == True:
+                mark.delete()
+                return Response({"delete":True})
+            elif mark.like:
+                mark.like = False
+                mark.dislike = True
+            else:
+                mark.dislike = True
+            mark.save(update_fields=['like', 'dislike'])
+        return Response(serializers.MarkSerializer(mark).data)
+
+class ReactMarkApi(generics.ListCreateAPIView):
+    queryset = Rating.objects.all()
+    serializer_class = serializers.RatingSerializer
+
+    def post(self, request, *args, **kwargs):
+        if REACT:
+            user = CustomUser.objects.get(pk = 1)
+        else:
+            user = self.request.user 
+        product = Product.objects.get(pk = request.data["product"])
+        rating,created = Rating.objects.get_or_create(user = user,product = product )
+        if not created and rating.rating == int(request.data.get('rating', False)):
+            rating.delete()
+            return Response({"average_rating":Rating.objects.filter(product = product).aggregate(avg = Avg('rating'))["avg"], 'del':True})
+        else:
+            rating.rating = int(request.data["rating"])
+            rating.save(update_fields=['rating'])
+        return Response({"average_rating":Rating.objects.filter(product = product).aggregate(avg = Avg('rating'))["avg"], 'del':False})
+
+class PhotoApi(ModelViewSet):
+    queryset = Photo.objects.all()
+    serializer_class = serializers.PhotoSerializer
 
 """ class ProductAPI(views.APIView):
     def get(self, request):

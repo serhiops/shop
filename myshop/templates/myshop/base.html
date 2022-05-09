@@ -10,6 +10,9 @@
     {% if chatcss %}
     <link type="text/css" href="{% static 'css/chat/styles.css' %}" rel="stylesheet" />
     {% endif %}
+    {% if react_detail %}
+    <script defer="defer" src="{% static 'detail/static/js/main.b2288861.js' %}"></script>
+    {% endif %}
     <title>{% block title %}{% endblock %}</title>
 </head>
 
