@@ -1,2 +1,3 @@
 db.sqlite3
 images
+config/main_config.py

@@ -15,7 +15,6 @@ function getCookie(name) {
     return cookieValue;
 }
 
-
 $("#changeUserData").on("click", function () {
     let list = document.getElementById("dataList");
     try {

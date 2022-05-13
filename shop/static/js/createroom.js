@@ -1,5 +1,5 @@
-const URL_ROOM = "/chat/api/v1/rooms/";
-
+const URL_ROOM = '/chat/api/v1/rooms/';
+const URL_TO_CHATROOM = '/chat/user_chats/'
 
 const getCookie = name => {
     let cookieValue = null;
@@ -17,17 +17,15 @@ const getCookie = name => {
 }
 
 
-const addRoom = (path, id)=>{
-    let room = path.split("/")[path.split("/").length -2];
+const addRoom = (id)=>{
     $.ajax({
-        type:'POST',
+        type:'POST', 
         url:URL_ROOM,
         data:{
-            name:room,
             product:Number(id),
             csrfmiddlewaretoken: getCookie('csrftoken'),
         },
-        success:()=>{window.location.pathname = '/chat/' + room + '/';},
+        success:()=>{window.location.pathname = URL_TO_CHATROOM;},
         error:(er)=>console.log(er)
     })
 }

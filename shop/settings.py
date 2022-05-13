@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 
 from pathlib import Path
 import os
-from pickle import TRUE
+from config.main_config import EMAIL_PASSWORD, EMAIL
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'channels',
     'chat.apps.ChatConfig',
     "corsheaders",
+    'config',
 ]
 AUTH_USER_MODEL = 'myshop.CustomUser'
 MIDDLEWARE = [
@@ -144,8 +145,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 465
-EMAIL_HOST_USER = 'serrheylitvinenko@gmail.com'
-EMAIL_HOST_PASSWORD = '3657051qaz'
+EMAIL_HOST_USER = EMAIL
+EMAIL_HOST_PASSWORD = EMAIL_PASSWORD
 EMAIL_USE_SSL = True
 EMAIL_USE_TLS = False
 

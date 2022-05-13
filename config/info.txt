@@ -1,0 +1,7 @@
+In this folder I have a main_config.py file, that contains the following constants:
+
+1. REACT - boolean, I use it for React-coding(default = False)
+2. EMAIL_PASSWORD - string, my email password 
+3. EMAIL - string, my email 
+
+I add this file to gitignore:)

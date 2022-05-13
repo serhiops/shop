@@ -1,9 +1,9 @@
 import MessageForm from "./MessageForm";
-import $ from 'jquery';
+import $, { error } from 'jquery';
 import React from "react";
 import Messages from "./Messages";
 
-const HOST = /*window.location.host*/ "127.0.0.1:8000"
+const HOST = window.location.host /* "127.0.0.1:8000" */
 const URL_GET_MESSAGES = 'http://127.0.0.1:8000/chat/api/v1/messages/'
 
 class Chats extends React.Component {
@@ -13,9 +13,9 @@ class Chats extends React.Component {
             current_messages: [],
             current_user: current_user,
             user_chats: user_chats,
-            chatSocket: undefined,
+            chatSocket: WebSocket,
             changeMessageFoo: this.updateMessage,
-        }
+        };
     }
     getMessages = (id) => {
         $.ajax({
@@ -25,11 +25,16 @@ class Chats extends React.Component {
                 room: id
             },
             success: ({ room }) => {
+                try{
+                    this.state.chatSocket.close()
+                } catch{}
                 $('#messages-area').removeAttr('hidden');
+                $('button[class$=active]').removeClass('active');
+                $(`#room-${id}`).addClass('active');
                 this.setState({
                     current_messages: room.messages,
                     current_room: room.name,
-                    chatSocket: new WebSocket('ws://' + HOST + '/ws/chat/' + room.name + '/')
+                    chatSocket: new WebSocket('ws://' + HOST + '/ws/chat/' + room.name + '/'),
                 });
             },
             error: data => { console.log(data) }
@@ -68,7 +73,7 @@ class Chats extends React.Component {
                     })
                     break;
                 case 'DELETE':
-                    this.state.current_messages.map((mes) => {
+                    this.state.current_messages.forEach((mes) => {
                         if (mes.id === data.message.id) {
                             mes.is_active = false
                         }
@@ -82,7 +87,7 @@ class Chats extends React.Component {
                         $(`#message-${data.message.id}`).addClass('active-message-cur-user').html("");
                         $(`#update-${data.message.id}`).text('Update').removeClass().addClass('btn btn-light btn-sm');
                     }
-                    this.state.current_messages.map(message => {
+                    this.state.current_messages.forEach(message => {
                         if (message.id === data.message.id) {
                             message.message = data.message.message;
                             message.updated = data.message.updated;
@@ -92,6 +97,9 @@ class Chats extends React.Component {
                         changeMessageFoo: this.updateMessage,
                         current_messages: this.state.current_messages
                     });
+                    break;
+                default:
+                    error('No such type!!!');
             }
         }
     }
@@ -110,7 +118,7 @@ class Chats extends React.Component {
                 </div>
                 <div style={{ "maxWidth": "25%" }}>
                     {this.state.user_chats.map((chat) =>
-                        <button className="list-group-item list-group-item-action" key={chat.id} onClick={this.getMessages.bind(this, chat.id)}>
+                        <button className="list-group-item list-group-item-action" id={`room-${chat.id}`} key={chat.id} onClick={this.getMessages.bind(this, chat.id)}>
                             <div className="d-flex w-100 justify-content-between">
                                 <h5 className="mb-1">{chat.product.name}</h5>
                             </div>

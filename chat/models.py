@@ -11,6 +11,7 @@ class Room(models.Model):
     class Meta:
         verbose_name = "Чат"
         verbose_name_plural = "Чат"
+        ordering = ('-created',)
 
 class Messages(models.Model):
     message = models.TextField(max_length=256, verbose_name="Сообщение")

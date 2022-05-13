@@ -10,8 +10,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import views
 from django.db.models import Q, Avg
+from config.main_config import REACT
 
-REACT = False 
 
 class ProductAPIList(generics.ListCreateAPIView):
     queryset = Product.objects.all()

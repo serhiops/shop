@@ -1,14 +1,14 @@
 from rest_framework.viewsets import ModelViewSet
-
 from myshop.models import Product
 from .models import Messages, Room
 from myshop.models import CustomUser
 from .serializers import RoomSerializer, MessagesSerializer
 from rest_framework.response import Response
 from myshop.serializers import UserSerializer
+from django.utils.text import slugify
+from config.main_config import REACT
 
 REACT = False
-
 class MessagesApi(ModelViewSet):
     queryset = Messages.objects.all()
     serializer_class = MessagesSerializer
@@ -38,10 +38,10 @@ class RoomApi(ModelViewSet):
     serializer_class = RoomSerializer
 
     def create(self, request, *args, **kwargs):
-        room_name = request.data.get("name", False)
         product_id = request.data.get("product", False)
-        if room_name and product_id:
+        if product_id:
             product = Product.objects.get(pk = product_id)
+            room_name = f'{product_id}-{request.user.id}-{slugify(product.salesman.username)}-{slugify(request.user.username)}-{slugify(product.name)}'
             room = Room.objects.get_or_create(name = room_name, product =product, user = request.user, salesman = product.salesman)[0]
             return Response({"data":RoomSerializer(room).data})
         return super().create(self, request, *args, **kwargs)

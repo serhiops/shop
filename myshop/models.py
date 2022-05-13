@@ -140,12 +140,6 @@ class FavoriteProducts(models.Model):
     def get_absolute_url_to_Ordering(self):
         return reverse("myshop:ordering", kwargs={"pk_sal":self.salesman.pk, "slug_prod":self.product.slug})
 
-    def get_absolute_url_to_chat(self):
-        salesman = slugify(self.salesman.username)
-        user = slugify(self.user.username)
-        product = slugify(self.product.name)
-        return reverse("chat:room", kwargs={"room_name":f'{self.product.pk}-{self.user.pk}-{salesman}-{user}-{product}'})
-
 class Ip(models.Model):
     ip = models.CharField(max_length=100)
 

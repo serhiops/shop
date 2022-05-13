@@ -4,8 +4,7 @@ from channels.auth import get_user
 from asgiref.sync import sync_to_async
 
 from .additionally import func
-
-REACT = False
+from config.main_config import REACT
 
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
