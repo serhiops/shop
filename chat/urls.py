@@ -14,6 +14,7 @@ app_name = 'chat'
 
 
 urlpatterns = [
+    path('user_chats/', views.user_chats, name = 'user_chats'),
     path('', views.index, name='index'),
     path('<slug:room_name>/', views.room, name='room'),
 

@@ -131,6 +131,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'shop/static'),
     os.path.join(BASE_DIR, 'myshop/templates/myshop/react_pages'),
+    os.path.join(BASE_DIR, 'chat/templates/chat/react_pages')
 ]
 
 MEDIA_URL = '/images/'

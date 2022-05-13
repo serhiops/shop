@@ -5,6 +5,8 @@ class Room(models.Model):
     name = models.CharField(max_length=124, unique=True)
     created = models.DateTimeField(auto_now_add=True, verbose_name="Создана")
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="get_product_messages", verbose_name="Товар")
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="get_user_room", verbose_name="User")
+    salesman = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="get_salesman_room", verbose_name="User")
 
     class Meta:
         verbose_name = "Чат"

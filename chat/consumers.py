@@ -2,8 +2,10 @@ import json
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.auth import get_user
 from asgiref.sync import sync_to_async
+
 from .additionally import func
 
+REACT = False
 
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
@@ -29,7 +31,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
     async def receive(self, text_data, bytes_data = None):
         text_data_json = json.loads(text_data)
         type = text_data_json['type']
-        print(text_data)
 
         if type == 'POST':
             data = {'type': 'chat_message','message': text_data_json['message']}
@@ -45,10 +46,12 @@ class ChatConsumer(AsyncWebsocketConsumer):
     # Receive message from room group
     async def chat_message(self, event):
         message = event['message']
-
-        current_user = await get_user(self.scope)
-
-        user = await sync_to_async(func.serializer_user,thread_sensitive=True)(current_user)
+        if REACT:
+            current_user = await sync_to_async(func.get_user_react,thread_sensitive=True)()
+            user = await sync_to_async(func.get_serializer_user_react,thread_sensitive=True)()
+        else:
+            current_user = await get_user(self.scope)
+            user = await sync_to_async(func.serializer_user,thread_sensitive=True)(current_user)
         message_api = await sync_to_async(func.create_message, thread_sensitive=True)(message,current_user, self.room_name)
 
         # Send message to WebSocket
@@ -61,7 +64,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
     async def update_chat_message(self, data):
         message = await sync_to_async(func.update_message, thread_sensitive=True)(data["message"], int(data["message_id"]))
-        user = await sync_to_async(func.serializer_user,thread_sensitive=True)(await get_user(self.scope))
+        if REACT:
+            user = await sync_to_async(func.get_serializer_user_react,thread_sensitive=True)()
+        else:
+            user = await sync_to_async(func.serializer_user,thread_sensitive=True)(await get_user(self.scope))
 
         await self.send(text_data=json.dumps({
             'message':message,
@@ -73,8 +79,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
         message_id = data["message_id"]
         
         message = await sync_to_async(func.delete_message, thread_sensitive=True)(message_id)
-        user = await sync_to_async(func.serializer_user,thread_sensitive=True)(await get_user(self.scope))
-
+        if REACT:
+            user = await sync_to_async(func.get_serializer_user_react,thread_sensitive=True)()
+        else:
+            user = await sync_to_async(func.serializer_user,thread_sensitive=True)(await get_user(self.scope))
         await self.send(text_data=json.dumps({
             'message':message,
             'type':'DELETE',

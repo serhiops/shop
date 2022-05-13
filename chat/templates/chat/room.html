@@ -16,7 +16,7 @@
                 onclick="updateMessage(this.value)">Update</button>
             <button type="button" class="btn btn-light btn-sm" value="{{ i.pk }}"
                 onclick="deleteMessage(this.value)">Delete</button>
-                {% if i.created != i.updated %}<small style="font-size: 13px;">Изменено</small>{% endif %}
+            {% if i.created != i.updated %}<small style="font-size: 13px;">Изменено</small>{% endif %}
         </div>
         <div id="message-{{ i.pk }}" class="active-message-cur-user">
             {{ i.message }}

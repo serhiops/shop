@@ -11,9 +11,8 @@ const getCookie = name => {
         }
     }
     return cookieValue;
-}
+} 
 const ROOM_NAME = location.href.split("/")[location.href.split("/").length - 2]
-const URL_POST = "/chat/api/v1/messages/"
 const roomName = JSON.parse(document.getElementById('room-name').textContent);
 
 const chatSocket = new WebSocket(
@@ -42,13 +41,13 @@ chatSocket.onmessage = function (e) {
         } else {
             $("#current-message").append(`<div id="message-${ messageId }" class="active-message-other-user">${ data.message }</div><br><br>`);
         };
-    } else if (data.type === 'PATCH'){
+    } if (data.type === 'PATCH'){
         $(`#message-${data.message.id}`).text(`${ data.message.message }`)
-    } else if (data.type === 'DELETE'){
+    } if (data.type === 'DELETE'){
         if (data.user.id === data.message.author) {
             $(`#author-message-${data.message.id}`).html(`<div class="del-message-cur-user"><span class="del-message-text">Вы удалили сообщение</span></div>`);
         } else {
-            $(`#author-message-${data.message.id}`).html(`<div class="del-message-other-user"><span class="del-message-text">Собеседник удалил сообщение</span></div><br><br>`)
+            $(`#message-${data.message.id}`).html(`<div class="del-message-other-user"><span class="del-message-text">Собеседник удалил сообщение</span></div><br><br>`)
         }
     }
 };
@@ -63,7 +62,7 @@ document.querySelector('#chat-message-input').onkeyup = function (e) {
         document.querySelector('#chat-message-submit').click();
     }
 };
-
+ 
 document.querySelector('#chat-message-submit').onclick = function (e) {
     const messageInputDom = document.querySelector('#chat-message-input');
     const message = messageInputDom.value;

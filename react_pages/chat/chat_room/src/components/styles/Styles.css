@@ -1,0 +1,47 @@
+.del-message-cur-user{
+    border: 1px solid #2d2d2d;
+    padding: 5px; 
+    border-radius: 15px; 
+    padding: 5px;
+    margin-bottom: 5px;
+    display: inline-block;
+    margin: 5px 0px 0px 5px;
+}
+
+.del-message-other-user{
+    border: 1px solid #2d2d2d;
+    padding: 5px;
+    margin: 0px 5px 5px 0px;
+    border-radius: 15px; 
+    float: right;
+}
+
+.del-message-text{
+    margin-bottom: 5px;
+    color: red;
+}
+
+.active-message-cur-user{
+    border: 1px solid #2d2d2d;
+    border-radius: 15px; 
+    text-align: center; 
+    padding: 5px;
+    margin-bottom: 5px;
+    display: inline-block;
+    margin-left: 5px;
+}
+
+.active-message-other-user{
+    border: 1px solid #2d2d2d;
+    border-radius: 15px; 
+    text-align: center; 
+    padding: 5px;
+    max-width: 30%; 
+    float: right;
+    margin: 5px 5px 5px 0px;
+}
+
+.change-text-other-user{
+    font-size: 13px;
+    margin-right: 7px;
+}

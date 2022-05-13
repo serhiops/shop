@@ -1,6 +1,7 @@
 from myshop.serializers import UserSerializer 
 from chat.models import Room, Messages
 from chat.serializers import MessagesSerializer
+from myshop.models import CustomUser
 
 def serializer_user(user):
     return UserSerializer(user).data
@@ -22,3 +23,8 @@ def delete_message(id):
     message.save()
     return MessagesSerializer(message).data
     
+def get_serializer_user_react():
+    return UserSerializer(CustomUser.objects.get(pk = 1)).data
+
+def get_user_react():
+    return CustomUser.objects.get(pk = 1)

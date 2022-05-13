@@ -12,6 +12,7 @@ from .additionally import func
 from django.views.generic.edit import FormView
 from django.contrib.auth.views import PasswordChangeView, PasswordResetView, PasswordResetConfirmView
 from django.contrib.messages.views import SuccessMessageMixin
+from chat.models import Room
 
 class Index(ListView, FormView):
     form_class = forms.Filter
@@ -552,6 +553,3 @@ class PasswordResetConfirm(SuccessMessageMixin, PasswordResetConfirmView):
         form.fields["new_password1"].widget.attrs["class"] = "form-control"
         form.fields["new_password2"].widget.attrs["class"] = "form-control"
         return form
-
-def test(request):
-    return render(request, '')
