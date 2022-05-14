@@ -26,39 +26,36 @@
     <div class="container">
         <div class="row">
             <div class="col-12">
-
-                {% if messages %}
-                {% for message in messages %}
-                {% if message.tags == 'error' %}
-                <div class="alert alert-danger" role="alert">
-                    {{ message }}
+                <div id="alerts">
+                    {% if messages %}
+                    {% for message in messages %}
+                    {% if message.tags == 'error' %}
+                    <div class="alert alert-danger" role="alert">
+                        {{ message }}
+                    </div>
+                    {% else %}
+                    <div class="alert alert-{{message.tags}}" role="alert">
+                        {{ message }}
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                    {% endif %}
                 </div>
-                {% else %}
-                <div class="alert alert-{{message.tags}}" role="alert">
-                    {{ message }}
-                </div>
-                {% endif %}
-                {% endfor %}
-                {% endif %}
 
                 {% block content %}{% endblock %}
             </div>
         </div>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
-    <script src="{% static 'jquary/main.js' %}"></script> 
-    {% if user.is_authenticated %}  
-        {% if detail_js %}
-        <script src="{% static 'js/detail.js' %}"></script>
-        {% endif %} 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
+        crossorigin="anonymous"></script>
+    <script src="{% static 'jquary/main.js' %}"></script>
+    {% if user.is_authenticated %}
         {% if changeUserDatajs %}
         <script src="{% static 'js/updateUserData.js' %}"></script>
         {% endif %}
         {% if ChangeOrderingDatajs %}
         <script src="{% static 'js/ChangeOrderingData.js' %}"></script>
-        {% endif %}
-        {% if detail_filterjs %}
-        <script src="{% static 'js/detail_filter.js' %}"></script>
         {% endif %}
         {% if statisticjs %}
         <script src="{% static 'js/statistic.js' %}"></script>
@@ -69,9 +66,12 @@
         {% if chatjs %}
         <script src="{% static 'js/chat.js' %}"></script>
         {% endif %}
-    {% endif %}
-    {% if loginjs %}
-    <script src="{% static 'js/login.js' %}"></script>
+        {% endif %}
+        {% if loginjs %}
+        <script src="{% static 'js/login.js' %}"></script>
+        {% endif %}
+        {% if react_detail %}
+        <script src="{% static 'js/add_to_cart.js' %}"></script>
     {% endif %}
 </body>
 

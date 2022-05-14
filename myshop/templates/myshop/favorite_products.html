@@ -22,7 +22,7 @@
             onclick="window.location.href = '{{ i.get_absolute_url_to_Ordering }}'">Оформить заказ</button>
         <form method="post">
             {% csrf_token %}
-            <button type="button" class="btn btn-outline-info" id="{{ i.pk }}" onclick="addRoom(this.id)">Написать
+            <button type="button" class="btn btn-outline-info" id="{{ i.product.pk }}" onclick="addRoom(this.id)">Написать
                 продавцу</button>
         </form>
         {% else %}

@@ -1,5 +1,5 @@
 from django.forms import ValidationError
-from .models import CustomUser, Product, Mark, Coments, FavoriteProducts, Rating, PostOfices, Ordering, Photo
+from .models import CustomUser, Product, Mark, Coments, FavoriteProducts, Rating, PostOfices, Ordering, Product, Photo
 from . import serializers
 from django.utils.text import slugify
 from rest_framework import generics
@@ -9,9 +9,8 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import views
-from django.db.models import Q, Avg
+from django.db.models import Avg
 from config.main_config import REACT
-
 
 class ProductAPIList(generics.ListCreateAPIView):
     queryset = Product.objects.all()
@@ -117,18 +116,6 @@ class CurrentUser(views.APIView):
     def get(self, request):
         return Response({"user":serializers.UserSerializer(request.user).data})
 
-class RatingViewset(ModelViewSet):
-    queryset = Rating.objects.all()
-    serializer_class = serializers.RatingSerializer
-
-class GetRatingAPI(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Product.objects.all()
-    serializer_class = serializers.ProductSerializer
-
-    def get(self, request, *args, **kwargs):
-        rating = Rating.objects.filter(product__id = kwargs.get("pk", None))
-        return Response({"rating":serializers.RatingSerializer(rating, many = True).data, "user":serializers.UserSerializer(self.request.user).data})
-
 class GetMarksAPI(generics.RetrieveUpdateDestroyAPIView):
     queryset = Mark.objects.all()
     serializer_class = serializers.MarkSerializer
@@ -136,29 +123,6 @@ class GetMarksAPI(generics.RetrieveUpdateDestroyAPIView):
     def get(self, request, *args, **kwargs):
         marks = Mark.objects.filter(product__id = kwargs.get("pk", None))
         return Response({"marks":serializers.MarkSerializer(marks, many = True).data, "user":serializers.UserSerializer(self.request.user).data})
-
-class GetComentAPI(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Coments.objects.all()
-    serializer_class = serializers.ComentsSerializer
-
-    def get(self, request, *args, **kwargs):
-        coments = Coments.objects.filter(product__id = kwargs.get("pk", None))
-        return Response({"coments":serializers.ComentsSerializer(coments, many = True).data, "user":serializers.UserSerializer(self.request.user).data})
-
-class GetProductsFilter(generics.ListAPIView):
-    queryset = Product.objects.all()
-    serializer_class = serializers.ProductSerializer
-
-    def get(self, request, *args, **kwargs):
-        city = self.request.query_params.get("city", False)
-        begin_price = self.request.query_params.get("begin_price", 0)
-        end_price = self.request.query_params.get("end_price", None)
-        category = self.request.query_params.get("category", None)
-        if not city:
-            products = Product.objects.filter(Q(price__gte = begin_price)&Q(price__lte = end_price)&Q(category__slug = category)).count()
-        else:
-            products = Product.objects.filter(Q(price__gte = begin_price)&Q(price__lte = end_price)&Q(salesman__city = city)&Q(category__slug = category)).count()
-        return Response(products)
 
 class GetPostOficesList(generics.ListAPIView):
     queryset = PostOfices.objects.all()
@@ -178,20 +142,6 @@ class GetOrderDataList(generics.ListAPIView):
         product = Product.objects.get(pk = product_id)
         salesman = CustomUser.objects.get(pk = product.salesman.id)
         return Response({"user":serializers.UserSerializer(self.request.user).data, "salesman":serializers.UserSerializer(salesman).data, "product":serializers.ProductSerializer(product).data})
-
-class GetRatingMarksComentsList(generics.ListAPIView):
-    queryset = Coments.objects.all()
-    serializer_class = serializers.ComentsSerializer
-
-    def get(self, request, *args, **kwargs):
-        product_id = self.request.query_params["productID"]
-        coments = Coments.objects.filter(product__id = product_id,is_active = True)
-        marks = Mark.objects.filter(product__id = product_id)
-        rating = Rating.objects.filter(product__id = product_id)
-        return Response({"coments":serializers.ComentsSerializer(coments, many = True).data,
-                        "marks":serializers.MarkSerializer(marks, many = True).data,
-                        "rating":serializers.RatingSerializer(rating, many = True).data,
-                        "user":serializers.UserSerializer(self.request.user).data})
 
 class ReactAPI(generics.RetrieveDestroyAPIView):
     queryset = Product.objects.all()
@@ -298,6 +248,17 @@ class ReactMarkApi(generics.ListCreateAPIView):
 class PhotoApi(ModelViewSet):
     queryset = Photo.objects.all()
     serializer_class = serializers.PhotoSerializer
+
+class AddToCart(views.APIView):
+ 
+    def post(self, request):
+        product = Product.objects.get(pk = request.data['product_id'])
+        favorite_product, created = FavoriteProducts.objects.get_or_create(product = product, salesman = product.salesman, user = self.request.user)
+        if created:
+            return Response({'type':'success', 'text':f'В корзину добавлено {product.name}'})
+        else:
+            return Response({'type':'danger', 'text':'Такой товар уже есть в вашей корзине'})
+
 
 """ class ProductAPI(views.APIView):
     def get(self, request):

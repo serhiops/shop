@@ -1,7 +1,7 @@
 
 
 
-<form method="post" class="row g-3">
+<form method="post" class="row g-3" id="filter-form">
     {{ form.none_field.errors }}
     {% csrf_token %}
     <div class="row g-3">
@@ -22,7 +22,7 @@
             </div>
         </div>
         <div class="col-md-4">
-            <label for="{{ form.city.id_for_label }}" style="float: right;">Найдено : <small id="productsCount"></small></label>
+            <label for="{{ form.city.id_for_label }}"></label>
             {{ form.city }}
             <div class="invalid-feedback">
                 {{ form.city.errors }}

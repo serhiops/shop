@@ -163,9 +163,9 @@ class DetailFilter(forms.Form):
     def clean_begin_price(self):
         begin_price = self.cleaned_data["begin_price"]
         if begin_price == None:
-            begin_price = Money("0", UAH)
+            return Money("0", UAH)
         max_price = max(Product.objects.filter(is_active = True).values_list("price"))
-        if max_price[0] < begin_price:
+        if Money(max_price[0], UAH) < Money(begin_price, UAH):
             begin_price = max_price
         return begin_price
 

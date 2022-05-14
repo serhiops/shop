@@ -40,6 +40,7 @@ class RoomApi(ModelViewSet):
     def create(self, request, *args, **kwargs):
         product_id = request.data.get("product", False)
         if product_id:
+            print(product_id)
             product = Product.objects.get(pk = product_id)
             room_name = f'{product_id}-{request.user.id}-{slugify(product.salesman.username)}-{slugify(request.user.username)}-{slugify(product.name)}'
             room = Room.objects.get_or_create(name = room_name, product =product, user = request.user, salesman = product.salesman)[0]

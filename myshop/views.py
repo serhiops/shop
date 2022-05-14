@@ -12,7 +12,6 @@ from .additionally import func
 from django.views.generic.edit import FormView
 from django.contrib.auth.views import PasswordChangeView, PasswordResetView, PasswordResetConfirmView
 from django.contrib.messages.views import SuccessMessageMixin
-from chat.models import Room
 
 class Index(ListView, FormView):
     form_class = forms.Filter
@@ -66,7 +65,6 @@ class ByCategory(ListView, FormView):
     def get_context_data(self, **kwargs):
         context =  super().get_context_data(**kwargs)
         context["categories"] = Category.objects.all()
-        context["detail_filterjs"] = True
         return context
 
     def form_invalid(self, form):
@@ -78,20 +76,19 @@ class ProductDetail(DetailView):
     context_object_name = "product"
     model = Product
 
-    def get_queryset(self):
-        return Product.objects.get(pk = self.kwargs["prod_pk"], is_active = True)
-
     def get_object(self):
         return Product.objects.get(pk = self.kwargs["prod_pk"], is_active = True)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        product = self.get_object()
         context["categories"] = Category.objects.all()
         if not self.request.user.is_authenticated:
             context["is_bought"] = False
         else:
-            context["is_bought"] = Ordering.objects.filter(user = self.request.user, product = self.get_queryset())
+            context["is_bought"] = Ordering.objects.filter(user = self.request.user, product = product)
         context['react_detail'] = True
+        context['product'] = product
         return context
 
     def get(self, request, *args, **kwargs):
@@ -102,25 +99,6 @@ class ProductDetail(DetailView):
             Ip.objects.create(ip=ip)
             self.get_object().views.add(Ip.objects.get(ip=ip))  
         return super().get(request, *args, **kwargs)
-
-def add_to_favoriteProducts(request, pk):
-    add = True
-    if request.user.is_authenticated and not request.user.is_salesman:
-        product = get_object_or_404(Product, pk = pk)
-        if not request.user.is_active:
-            messages.error(request, "Вы не активировали почту")
-        else:
-            for i in FavoriteProducts.objects.filter(user = request.user).values():
-                if i["product_id"] == pk:
-                    add = False
-                    messages.error(request, "Такой товар уже есть в вашей корзине")
-                    break
-            if add == True:
-                FavoriteProducts.objects.create(user = request.user, product = product, salesman = product.salesman)
-                messages.success(request, "В корзину добавлено " + product.name)
-        return redirect(product)
-    else:
-        return redirect("myshop:index")
 
 class FavoriteProductsList(ListView):
     template_name = "myshop/favorite_products.html"
@@ -440,7 +418,7 @@ def completed_orders(request):
         }
         return render(request, "myshop/product_sending.html", context)
     else:
-        return redirect("myshop:index")
+        return redirect("myshop:user_profile")
 
 def set_is_sent(request, prod_pk):
     product = get_object_or_404(Ordering, pk = prod_pk)
@@ -454,7 +432,7 @@ def set_is_take(request, prod_pk):
     product.is_take = True
     product.save(update_fields=["is_take"])
     messages.success(request, "Вы успешно приняли заказ!")
-    return redirect("myshop:user_profile")
+    return redirect("myshop:accepted_products")
 
 def accepted_products(request):
     if request.user.is_salesman:

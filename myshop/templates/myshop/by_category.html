@@ -4,27 +4,30 @@
 
 {% block content %}
 {% include "myshop/_inc/_detail_filter.html" %}
+
 <div class="card-group">
-<div class="row row-cols-1  row-cols-md-2">
-    {% for i in products %}
-    <div class="col">
-        <div class="card-footer">
-            <small class="text">Цена : {{ i.price }} грн.</small>
-        </div>
-        <div class="card">
-            <img src="{{ i.photos.first.image.url }}" class="card-img-top" alt="..." width="250" height="150">
-            <div class="card-body">
-                <h5 class="card-title">{{ i.name }}</h5>
-                <p class="card-text">{{ i.description|truncatechars:150 }}</p>
+    <div class="row row-cols-1  row-cols-md-2">
+        {% for i in products %}
+        <div class="col">
+            <div class="card-footer">
+                <small class="text">Цена : {{ i.price }} грн.</small>
             </div>
-            <button type="button" class="btn btn-primary" onclick="window.location.href = '{{ i.get_absolute_url }}'">Детально</button>
+            <div class="card">
+                <img src="{{ i.photos.first.image.url }}" class="card-img-top" alt="..." width="250" height="150">
+                <div class="card-body">
+                    <h5 class="card-title">{{ i.name }}</h5>
+                    <p class="card-text">{{ i.description|truncatechars:150 }}</p>
+                </div>
+                <button type="button" class="btn btn-primary"
+                    onclick="window.location.href = '{{ i.get_absolute_url }}'">Детально</button>
+            </div>
+            <div class="card-footer">
+                <small class="text-muted" style="width: 50%;">{{ i.created|date:"Y.m.d H:i" }}</small>
+                <small class="text-muted" style="float: right;">Продавец : <a
+                        href="{% url 'myshop:salesman_profile' i.salesman.username %}">{{ i.salesman.company}}</a></small>
+            </div>
         </div>
-        <div class="card-footer">
-            <small class="text-muted" style="width: 50%;">{{ i.created|date:"Y.m.d H:i" }}</small>
-            <small class="text-muted" style="float: right;">Продавец : <a href="{% url 'myshop:salesman_profile' i.salesman.username %}">{{ i.salesman.company }}</a></small>
-        </div>
+        {% endfor %}
     </div>
-    {% endfor %}
-</div>
 </div>
 {% endblock %}

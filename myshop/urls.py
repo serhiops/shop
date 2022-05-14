@@ -5,16 +5,14 @@ from rest_framework import routers
 
 app_name = 'myshop'
 
-routerComent = routers.SimpleRouter()
+
 routerUser = routers.SimpleRouter()
 routerFavoriteProducts = routers.SimpleRouter()
-routerRating = routers.SimpleRouter()
 routerPhoto = routers.SimpleRouter()
 
-routerComent.register(r'coment', api.ComentViewset)
+
 routerUser.register(r'user', api.UserViewset)
 routerFavoriteProducts.register(r'favoriteProducts', api.FavoriteProductsViewset)
-routerRating.register(r'rating', api.RatingViewset)
 routerPhoto.register(r'photo', api.PhotoApi)
 
 urlpatterns = [
@@ -45,8 +43,7 @@ urlpatterns = [
     path("set_is_sent/<int:prod_pk>/", set_is_sent, name = "set_is_sent"),
     path("set_is_take/<int:prod_pk>/", set_is_take, name = "set_is_take"),
     path("accepted_products/", accepted_products, name = 'accepted_products'),
-    path("salesman/<slug:salesman_slug>/", salesman_profile, name = "salesman_profile"),
-    path("add_to_favoriteProducts/<int:pk>/", add_to_favoriteProducts, name = "add_to_favoriteProducts"),   
+    path("salesman/<slug:salesman_slug>/", salesman_profile, name = "salesman_profile"), 
     path("change_password/", ChangePassoword.as_view(), name = "change_password"),
     
     path("reset_password/", PasswordReset.as_view(), name = "password_reset"),
@@ -54,23 +51,17 @@ urlpatterns = [
   
     path("api/v1/product/<int:pk>/", api.ProductDetail.as_view()),
     path("api/v1/product/", api.ProductAPIList.as_view()),
-    path("api/v1/get_rating/<int:pk>/", api.GetRatingAPI.as_view()),
     path("api/v1/marks/",api.MarkAPIListOrCreate.as_view(),name = "mark_list"),
     path("api/v1/marks/<int:pk>/",api.MarkAPIUpdate.as_view(),name = "mark_pk"),
-    path("api/v1/", include(routerComent.urls), name = "comentapi"),
     path("api/v1/", include(routerUser.urls)),
     path("api/v1/", include(routerFavoriteProducts.urls)),
     path("api/v1/current_user/", api.CurrentUser.as_view()),
-    path("api/v1/", include(routerRating.urls)),
     path("api/v1/get_mark/<int:pk>/", api.GetMarksAPI.as_view()),
-    path("api/v1/get_coments/<int:pk>/", api.GetComentAPI.as_view()),
-    path("api/v1/product_filter/", api.GetProductsFilter.as_view()),
     path("api/v1/post_ofices/", api.GetPostOficesList.as_view()),
     path("api/v1/get_ordering/", api.GetOrderDataList.as_view()),
-    path("api/v1/rating_marks_comentsList/", api.GetRatingMarksComentsList.as_view()),
-
     path("api/v1/react/<int:pk>/", api.ReactAPI.as_view()),
     path('api/v1/react/', api.ReactAPIPost.as_view()),
     path('api/v1/react-mark/', api.ReactMarkApi.as_view()),
-    path('api/v1/', include(routerPhoto.urls))
+    path('api/v1/', include(routerPhoto.urls)),
+    path('api/v1/add-to-cart/', api.AddToCart.as_view())
 ]
