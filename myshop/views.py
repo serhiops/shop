@@ -232,7 +232,7 @@ def user_active_oders(request):
     if not request.user.is_salesman:
         orders = Ordering.objects.filter(user = request.user, is_done = False)
         context = {
-            "orders":orders
+            "orders":orders,
         }
         return render(request, "myshop/user_active_oders.html", context)
 

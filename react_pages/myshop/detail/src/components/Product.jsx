@@ -1,7 +1,6 @@
 import React from "react";
 
 const DOMAIN = 'http://127.0.0.1:8000'
-
 const Product = ({product, images, company_name}) => { 
     return(
         <div>

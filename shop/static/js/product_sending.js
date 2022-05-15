@@ -9,7 +9,7 @@ getCookie = name => {
             if (cookie.substring(0, name.length + 1) === (name + '=')) {
                 cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
                 break;
-            } 
+            }
         }
     }
     return cookieValue;
@@ -17,37 +17,38 @@ getCookie = name => {
 
 const acceptOrder = (id) => {
     $.ajax({
-        type:'PATCH',
-        url: URL_PATCH+id+'/',
+        type: 'PATCH',
+        url: URL_PATCH + id + '/',
         headers: { "X-CSRFToken": getCookie('csrftoken') },
-        data:{
-            id:Number(id),
-            is_take:true
+        data: {
+            id: Number(id),
+            is_take: true
         },
-        success:data=>{
+        success: data => {
             $(`#product-${id}`).html('');
             $('#alerts').html(`<div class ='alert alert-success'>Вы приняли заказ ${data.product_name}</div>`);
-            window.scrollTo(0,0);
+            window.scrollTo(0, 0);
 
         },
-        error:data=>{console.log(data)},
+        error: data => { console.log(data) },
     })
 }
 
-const sendingOrder = (id)=>{
+const sendingOrder = (id) => {
     $.ajax({
-        type:'PATCH',
-        url:URL_PATCH+id+'/',
+        type: 'PATCH',
+        url: URL_PATCH + id + '/',
         headers: { "X-CSRFToken": getCookie('csrftoken') },
-        data:{
-            id:Number(id),
-            is_sent:true,
+        data: {
+            id: Number(id),
+            is_sent: true,
         },
-        success:data=>{
+        success: data => {
             $(`#product-${id} #card-footer`).addClass('card-footer bg-transparent border-success').html('<b>Ждем подтверждения посылки получателем</b> ').removeAttr('style');
             $('#alerts').html(`<div class ='alert alert-success'>Заказ отмечен как отправленный!</div>`);
-            window.scrollTo(0,0);
+            window.scrollTo(0, 0);
         },
-        error:data=>{console.log(data)}
+        error: data => { console.log(data) }
     })
 }
+

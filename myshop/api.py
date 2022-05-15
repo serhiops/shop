@@ -100,7 +100,10 @@ class ComentViewset(ModelViewSet):
     def create(self, request, *args, **kwargs):
         _mutable = request.data._mutable
         request.data._mutable = True
-        request.data["author"] = 1
+        if REACT:
+            request.data["author"] = 1
+        else:
+            request.data["author"] = request.user
         request.data._mutable = _mutable
         return super().create(request, *args, **kwargs)
 
@@ -154,16 +157,17 @@ class ReactAPI(generics.RetrieveDestroyAPIView):
         rating = Rating.objects.filter(product = product)
         likes = Mark.objects.filter(product = product, like = True)
         dislikes = Mark.objects.filter(product = product, dislike = True)
-        if request.user.id == None:
-            return Response({
-                'product':serializers.ProductSerializer(product).data, 
-                'likes':likes.count(),
-                'dislikes': dislikes.count(), 
-                'current_user': False,
-                "coments":serializers.ComentsSerializer(coments, many = True).data,
-                'company_name':product.salesman.company,
-                'images':image
-            })
+        if not REACT:
+            if request.user.id == None:
+                return Response({
+                    'product':serializers.ProductSerializer(product).data, 
+                    'likes':likes.count(),
+                    'dislikes': dislikes.count(), 
+                    'current_user': False,
+                    "coments":serializers.ComentsSerializer(coments, many = True).data,
+                    'company_name':product.salesman.company,
+                    'images':image
+                })
         if REACT:
             current_user = CustomUser.objects.get(pk = 1)
         else:
@@ -259,6 +263,18 @@ class AddToCart(views.APIView):
         else:
             return Response({'type':'danger', 'text':'Такой товар уже есть в вашей корзине'})
 
+class CreateComentApi(generics.CreateAPIView, generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = serializers.ComentsSerializer
+    queryset = Coments.objects.all()
+    def post(self, request, *args, **kwargs):
+        _mutable = request.data._mutable
+        request.data._mutable = True
+        if REACT:
+            request.data["author"] = 1
+        else:
+            request.data["author"] = request.user
+        request.data._mutable = _mutable
+        return super().create(request, *args, **kwargs)
 
 """ class ProductAPI(views.APIView):
     def get(self, request):

@@ -26,5 +26,7 @@ urlpatterns = [
     path('api/v1/react-mark/', api.ReactMarkApi.as_view()),
     path('api/v1/', include(routerPhoto.urls)),
     path('api/v1/add-to-cart/', api.AddToCart.as_view()),
-    path('api/v1/product-sending/<int:pk>/', api.OrderApi.as_view())
+    path('api/v1/product-sending/<int:pk>/', api.OrderApi.as_view()),
+    path('api/v1/coment/', api.CreateComentApi.as_view()),
+    path('api/v1/coment/<int:pk>/', api.CreateComentApi.as_view())
 ]

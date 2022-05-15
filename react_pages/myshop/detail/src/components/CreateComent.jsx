@@ -3,6 +3,8 @@ import $ from 'jquery';
 import Coments from './Coments';
 import getCookie from "./getCookie";
 
+
+
 class CreateComent extends React.Component {
     constructor({ product, current_user, coments, is_bought }) {
         super();
@@ -24,7 +26,7 @@ class CreateComent extends React.Component {
         let text = $('#comentForm');
         $.ajax({
             type: 'POST',
-            url: 'http://127.0.0.1:8000/api/v1/coment/',
+            url:"/api/v1/coment/",
             data: {
                 text: text.val(),
                 product: this.state.product.id,
@@ -44,7 +46,7 @@ class CreateComent extends React.Component {
         let text = document.getElementsByTagName("input")[0].value
         $.ajax({
             type: 'PATCH',
-            url: `http://127.0.0.1:8000/api/v1/coment/${id}/`,
+            url: `/api/v1/coment/${id}/`,
             data: {
                 text: text,
                 csrfmiddlewaretoken: getCookie('csrftoken'),
@@ -63,7 +65,7 @@ class CreateComent extends React.Component {
     deleteComent = (id) => {
         $.ajax({
             type: 'DELETE',
-            url: `http://127.0.0.1:8000/api/v1/coment/${id}/`,
+            url: `/api/v1/coment/${id}/`,
             headers: { "X-CSRFToken": getCookie('csrftoken') },
             success: data => {
                 this.setState({

@@ -1,15 +1,15 @@
 import $ from 'jquery';
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import getCookie from "./getCookie";
 
-const Rating = ({ current_user_rating, average_rating, product }) => {
+const Rating = ({ current_user_rating, average_rating, product, is_bought }) => {
 
     let [average_r, setAverageRating] = useState(average_rating);
 
     const addRating = (mark) => {
         $.ajax({
             type: 'POST',
-            url: 'http://127.0.0.1:8000/api/v1/react-mark/',
+            url: '/api/v1/react-mark/',
             data: {
                 product: product.id,
                 rating: Number(mark),
@@ -23,30 +23,32 @@ const Rating = ({ current_user_rating, average_rating, product }) => {
                     $('button[class$=active]').removeClass('active')
                     $(`#rating_${mark}`).addClass("active")
                 }
-                setAverageRating(data.average_rating);  //average_rating from response data
+                setAverageRating(data.average_rating);
             },
             error: data => { console.log(data) }
         })
     }
 
-    let count = [1, 2, 3, 4, 5]
+    const count = [1, 2, 3, 4, 5]
 
     const RatingList = (rat) => {
-        let rat_id = `rating_${rat}`
         if (current_user_rating && current_user_rating.rating === rat) {
-            return <button key={rat} type="button" className="btn btn-outline-dark active" id={rat_id} onClick={addRating.bind(this, rat)}>{rat}</button>
+            return <button key={rat} type="button" className="btn btn-outline-dark active" id={`rating-${rat}`} onClick={addRating.bind(this, rat)}>{rat}</button>
         } else {
-            return <button key={rat} type="button" className="btn btn-outline-dark" id={rat_id} onClick={addRating.bind(this, rat)}>{rat}</button>
+            return <button key={rat} type="button" className="btn btn-outline-dark" id={`rating-${rat}`} onClick={addRating.bind(this, rat)}>{rat}</button>
         }
     }
     return (
         <div style={{ 'margin': '10px 0px' }}>
-            <p>Средний рейтинг : {average_r}</p>
-            <div className="btn-group" role="group">
-                {count.map((index) =>
-                    RatingList(index)
-                )}
-            </div>
+            {is_bought ?
+                <div>
+                    <p>Средний рейтинг : {average_r}</p>
+                    <div className="btn-group" role="group">
+                        {count.map((index) =>
+                            RatingList(index)
+                        )}
+                    </div>
+                </div> : <div></div>}
         </div>
     );
 }

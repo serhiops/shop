@@ -6,8 +6,8 @@ import $ from 'jquery';
 import RatingApp from './RatingApp';
 import CreateComentApp from './CreateComentApp';
 
-
-const API = `http://127.0.0.1:8000/api/v1/react/${window.location.pathname.split('/')[2]}/`;
+//${window.location.pathname.split('/')[2]}
+const API = `/api/v1/react/${window.location.pathname.split('/')[2]}/`;
 
 $.ajax({
     type: 'GET',
@@ -33,7 +33,8 @@ $.ajax({
             <RatingApp
                 current_user_rating={data.current_user_rating}
                 average_rating={data.average_rating}
-                product={data.product} />
+                product={data.product}
+                is_bought = {data.is_bought} />
         );
         coment_form.render(
             <CreateComentApp product={data.product}

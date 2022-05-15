@@ -17,7 +17,7 @@ const Likes = ({ likes, dislikes, product, current_user,is_liked_by_current_user
     const addLike = () => {
         $.ajax({
             type: 'POST',
-            url: `http://127.0.0.1:8000/api/v1/react/`,
+            url: `/api/v1/react/`,
             data: {
                 product: product.id,
                 user: current_user.id,
@@ -46,7 +46,7 @@ const Likes = ({ likes, dislikes, product, current_user,is_liked_by_current_user
     const addDislike = () => {
         $.ajax({
             type: 'POST',
-            url: `http://127.0.0.1:8000/api/v1/react/`,
+            url: `/api/v1/react/`,
             data: {
                 product: product.id,
                 user: current_user.id,
