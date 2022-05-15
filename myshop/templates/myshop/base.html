@@ -66,12 +66,15 @@
         {% if chatjs %}
         <script src="{% static 'js/chat.js' %}"></script>
         {% endif %}
-        {% endif %}
         {% if loginjs %}
         <script src="{% static 'js/login.js' %}"></script>
         {% endif %}
         {% if react_detail %}
         <script src="{% static 'js/add_to_cart.js' %}"></script>
+        {% endif %}
+        {% if product_sendingjs %}
+        <script src="{% static 'js/product_sending.js' %}"></script>
+        {% endif %}
     {% endif %}
 </body>
 

@@ -133,7 +133,7 @@ class GetPostOficesList(generics.ListAPIView):
         ofices = PostOfices.objects.filter(name__contains = city, is_active = True)
         return Response(serializers.PostOficesSerializer(ofices, many = True).data)
 
-class GetOrderDataList(generics.ListAPIView):
+class OrderApi(generics.ListAPIView, generics.RetrieveUpdateDestroyAPIView):
     queryset = Ordering.objects.all()
     serializer_class = serializers.OrderingSerializer
 

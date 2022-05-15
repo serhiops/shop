@@ -56,6 +56,11 @@ class OrderingSerializer(serializers.ModelSerializer):
         model = Ordering
         fields = "__all__" 
 
+    def to_representation(self, instance):
+        response = super().to_representation(instance)
+        response['product_name'] = instance.product.name
+        return response
+
 class PhotoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Photo

@@ -403,7 +403,8 @@ def backorders(request):
         context = {
             "products":products,
             "title":"Заказы",
-            "step":0
+            "step":0,
+            'product_sendingjs':True
         }
         return render(request, "myshop/product_sending.html", context)
     else:
@@ -419,21 +420,7 @@ def completed_orders(request):
         return render(request, "myshop/product_sending.html", context)
     else:
         return redirect("myshop:user_profile")
-
-def set_is_sent(request, prod_pk):
-    product = get_object_or_404(Ordering, pk = prod_pk)
-    product.is_sent = True
-    product.save(update_fields=["is_sent"])
-    messages.success(request, "Заказ отмечен как отправленный!")
-    return redirect("myshop:user_profile")
     
-def set_is_take(request, prod_pk):
-    product = get_object_or_404(Ordering, pk = prod_pk)
-    product.is_take = True
-    product.save(update_fields=["is_take"])
-    messages.success(request, "Вы успешно приняли заказ!")
-    return redirect("myshop:accepted_products")
-
 def accepted_products(request):
     if request.user.is_salesman:
         products = Ordering.objects.filter(salesman = request.user, is_done = False, is_take = True, is_sent = False)
@@ -442,7 +429,8 @@ def accepted_products(request):
             "products":products,
             "title":"Принятые товары",
             "wait_products":wait_products,
-            "step":1
+            "step":1,
+            'product_sendingjs':True
         }
         return render(request, "myshop/product_sending.html", context)
     else:

@@ -1,19 +1,8 @@
-from django.urls import path, include
+from django.urls import path
 from .views import *
-from . import api
-from rest_framework import routers
+from . import api_urls
 
 app_name = 'myshop'
-
-
-routerUser = routers.SimpleRouter()
-routerFavoriteProducts = routers.SimpleRouter()
-routerPhoto = routers.SimpleRouter()
-
-
-routerUser.register(r'user', api.UserViewset)
-routerFavoriteProducts.register(r'favoriteProducts', api.FavoriteProductsViewset)
-routerPhoto.register(r'photo', api.PhotoApi)
 
 urlpatterns = [
     path("by_category/<slug:cat_slug>/", ByCategory.as_view(), name = "by_category"),
@@ -40,28 +29,10 @@ urlpatterns = [
     path("backorders/", backorders, name = "backorders"),
     path("user_active_oders/", user_active_oders,name =  "user_active_oders"),
     path("completed_orders/", completed_orders, name = "completed_orders"),
-    path("set_is_sent/<int:prod_pk>/", set_is_sent, name = "set_is_sent"),
-    path("set_is_take/<int:prod_pk>/", set_is_take, name = "set_is_take"),
     path("accepted_products/", accepted_products, name = 'accepted_products'),
     path("salesman/<slug:salesman_slug>/", salesman_profile, name = "salesman_profile"), 
     path("change_password/", ChangePassoword.as_view(), name = "change_password"),
     
     path("reset_password/", PasswordReset.as_view(), name = "password_reset"),
     path("password_reset_confirm/<uidb64>/<token>/", PasswordResetConfirm.as_view(), name = 'password_reset_confirm'),
-  
-    path("api/v1/product/<int:pk>/", api.ProductDetail.as_view()),
-    path("api/v1/product/", api.ProductAPIList.as_view()),
-    path("api/v1/marks/",api.MarkAPIListOrCreate.as_view(),name = "mark_list"),
-    path("api/v1/marks/<int:pk>/",api.MarkAPIUpdate.as_view(),name = "mark_pk"),
-    path("api/v1/", include(routerUser.urls)),
-    path("api/v1/", include(routerFavoriteProducts.urls)),
-    path("api/v1/current_user/", api.CurrentUser.as_view()),
-    path("api/v1/get_mark/<int:pk>/", api.GetMarksAPI.as_view()),
-    path("api/v1/post_ofices/", api.GetPostOficesList.as_view()),
-    path("api/v1/get_ordering/", api.GetOrderDataList.as_view()),
-    path("api/v1/react/<int:pk>/", api.ReactAPI.as_view()),
-    path('api/v1/react/', api.ReactAPIPost.as_view()),
-    path('api/v1/react-mark/', api.ReactMarkApi.as_view()),
-    path('api/v1/', include(routerPhoto.urls)),
-    path('api/v1/add-to-cart/', api.AddToCart.as_view())
-]
+] + api_urls.urlpatterns
