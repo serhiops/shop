@@ -39,7 +39,7 @@ class Index(ListView, FormView):
 
     def form_invalid(self, form):
         func.get_error_messages(self.request, form)
-        return super().form_invalid(form)
+        return redirect('myshop:index')
 
 class ByCategory(ListView, FormView):
     form_class = forms.DetailFilter

@@ -1,6 +1,7 @@
 import React, {useState} from "react"
 import $ from 'jquery';
 import getCookie from "./getCookie";
+import { FULL_PATH } from "../config";
 
 const Likes = ({ likes, dislikes, product, current_user,is_liked_by_current_user,is_disliked_by_current_user }) => {
 
@@ -17,7 +18,7 @@ const Likes = ({ likes, dislikes, product, current_user,is_liked_by_current_user
     const addLike = () => {
         $.ajax({
             type: 'POST',
-            url: `/api/v1/react/`,
+            url: FULL_PATH+`/api/v1/react/`,
             data: {
                 product: product.id,
                 user: current_user.id,
@@ -46,7 +47,7 @@ const Likes = ({ likes, dislikes, product, current_user,is_liked_by_current_user
     const addDislike = () => {
         $.ajax({
             type: 'POST',
-            url: `/api/v1/react/`,
+            url: FULL_PATH+`/api/v1/react/`,
             data: {
                 product: product.id,
                 user: current_user.id,

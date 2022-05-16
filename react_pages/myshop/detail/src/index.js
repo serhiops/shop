@@ -5,9 +5,9 @@ import LikesApp from './LikesApp';
 import $ from 'jquery';
 import RatingApp from './RatingApp';
 import CreateComentApp from './CreateComentApp';
+import {FULL_PATH, PRODUCT} from './config';
 
-//${window.location.pathname.split('/')[2]}
-const API = `/api/v1/react/${window.location.pathname.split('/')[2]}/`;
+const API = FULL_PATH+`/api/v1/react/${PRODUCT}/`;
 
 $.ajax({
     type: 'GET',

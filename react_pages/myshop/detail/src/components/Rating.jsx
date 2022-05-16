@@ -1,6 +1,7 @@
 import $ from 'jquery';
 import React, { useState } from 'react';
 import getCookie from "./getCookie";
+import { FULL_PATH } from '../config';
 
 const Rating = ({ current_user_rating, average_rating, product, is_bought }) => {
 
@@ -9,7 +10,7 @@ const Rating = ({ current_user_rating, average_rating, product, is_bought }) => 
     const addRating = (mark) => {
         $.ajax({
             type: 'POST',
-            url: '/api/v1/react-mark/',
+            url: FULL_PATH+'/api/v1/react-mark/',
             data: {
                 product: product.id,
                 rating: Number(mark),
@@ -17,11 +18,11 @@ const Rating = ({ current_user_rating, average_rating, product, is_bought }) => 
             },
             success: (data) => {
                 if (data.del) {
-                    $(`#rating_${mark}`).removeClass("active");
+                    $(`#rating-${mark}`).removeClass("active");
                 }
                 else {
                     $('button[class$=active]').removeClass('active')
-                    $(`#rating_${mark}`).addClass("active")
+                    $(`#rating-${mark}`).addClass("active")
                 }
                 setAverageRating(data.average_rating);
             },
