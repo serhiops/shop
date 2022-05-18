@@ -31,7 +31,7 @@ urlpatterns = [
     path("completed_orders/", completed_orders, name = "completed_orders"),
     path("accepted_products/", accepted_products, name = 'accepted_products'),
     path("salesman/<slug:salesman_slug>/", salesman_profile, name = "salesman_profile"), 
-    path("change_password/", ChangePassoword.as_view(), name = "change_password"),
+    path("change_password/", ChangePassword.as_view(), name = "change_password"),
     
     path("reset_password/", PasswordReset.as_view(), name = "password_reset"),
     path("password_reset_confirm/<uidb64>/<token>/", PasswordResetConfirm.as_view(), name = 'password_reset_confirm'),

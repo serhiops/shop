@@ -6,12 +6,13 @@ from rest_framework import generics
 #from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import views
 from django.db.models import Avg
 from config.main_config import REACT
-
+from .permissions import permissions_api
+from rest_framework.permissions import IsAuthenticated
+ 
 class ProductAPIList(generics.ListCreateAPIView):
     queryset = Product.objects.all()
     serializer_class = serializers.ProductSerializer
@@ -41,56 +42,10 @@ class ProductDetail(generics.RetrieveUpdateDestroyAPIView):
         product.save()
         return Response(serializers.ProductSerializer(product).data)
 
-class MarkAPIListOrCreate(generics.ListCreateAPIView):
-    queryset = Mark.objects.all()
-    serializer_class = serializers.MarkSerializer
-
-    def post(self, request, *args, **kwargs):
-        try:
-            mark = Mark.objects.get(product__id = request.data["product"], user__id = request.data["user"])
-            if mark:
-                mark.delete()
-        except:
-            pass
-        return super().post(request, *args, **kwargs)
-
-    def get(self, request, *args, **kwargs):
-        marks = Mark.objects.all()
-        return Response({"marks":serializers.MarkSerializer(marks, many=True).data, "user":serializers.UserSerializer(request.user).data})
-
-class MarkAPIUpdate(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Mark.objects.all()
-    serializer_class = serializers.MarkSerializer
-    permission_classes = (IsAuthenticated,)
-
-    def put(self, request, *args, **kwargs):
-        mark = Mark.objects.get(product__id = request.data["product"], user__id = request.data["user"])
-        
-        like = request.data.get("like", False)
-        dislike = request.data.get("dislike", False)
-        
-        if like == dislike:
-            raise ValidationError("error! like == dislike")
-
-        if like:
-            if mark.dislike:
-                mark.like = not mark.like
-                mark.dislike = not mark.dislike
-            elif mark.like:
-                mark.delete()
-        
-        if dislike:
-            if mark.like:
-                mark.dislike = not mark.dislike
-                mark.like = not mark.like
-            elif mark.dislike:
-                mark.delete()
-
-        return super().put(request, *args, **kwargs)
-
 class ComentViewset(ModelViewSet):
     queryset = Coments.objects.all()
     serializer_class = serializers.ComentsSerializer
+    permission_classes = (permissions_api.IsOwnerOrReadOnlyComent)
 
     def list(self, request, *args, **kwargs):
         coments = Coments.objects.all()
@@ -114,6 +69,7 @@ class UserViewset(ModelViewSet):
 class FavoriteProductsViewset(ModelViewSet):
     queryset = FavoriteProducts.objects.all()
     serializer_class = serializers.FavoriteProductsSerializer
+    permission_classes = (IsAuthenticated,)
 
 class CurrentUser(views.APIView):
     def get(self, request):
@@ -122,6 +78,7 @@ class CurrentUser(views.APIView):
 class GetMarksAPI(generics.RetrieveUpdateDestroyAPIView):
     queryset = Mark.objects.all()
     serializer_class = serializers.MarkSerializer
+    permission_classes = (permissions_api.IsOwnerOrReadOnly)
 
     def get(self, request, *args, **kwargs):
         marks = Mark.objects.filter(product__id = kwargs.get("pk", None))
@@ -130,6 +87,7 @@ class GetMarksAPI(generics.RetrieveUpdateDestroyAPIView):
 class GetPostOficesList(generics.ListAPIView):
     queryset = PostOfices.objects.all()
     serializer_class = serializers.PostOficesSerializer
+    permission_classes = (IsAuthenticated,)
 
     def get(self, request, *args, **kwargs):
         city = self.request.query_params["city"]
@@ -139,6 +97,7 @@ class GetPostOficesList(generics.ListAPIView):
 class OrderApi(generics.ListAPIView, generics.RetrieveUpdateDestroyAPIView):
     queryset = Ordering.objects.all()
     serializer_class = serializers.OrderingSerializer
+    permission_classes = (IsAuthenticated,)
 
     def get(self, request, *args, **kwargs):
         product_id = self.request.query_params["productID"]
@@ -199,6 +158,7 @@ class ReactAPI(generics.RetrieveDestroyAPIView):
 class ReactAPIPost(generics.ListCreateAPIView):
     queryset = Mark.objects.all()
     serializer_class = serializers.MarkSerializer
+    permission_classes = (permissions_api.IsOwnerOrReadOnly,)
 
     def post(self, request, *args, **kwargs):
         if REACT:
@@ -230,11 +190,13 @@ class ReactAPIPost(generics.ListCreateAPIView):
             mark.save(update_fields=['like', 'dislike'])
         return Response(serializers.MarkSerializer(mark).data)
 
-class ReactMarkApi(generics.ListCreateAPIView):
+class ReactMarkApi(generics.ListCreateAPIView,): 
     queryset = Rating.objects.all()
     serializer_class = serializers.RatingSerializer
+    permission_classes = (permissions_api.DefaultUserPermission, permissions_api.IsOwnerOrReadOnly)
 
     def post(self, request, *args, **kwargs):
+        """ create, update and delete mark """
         if REACT:
             user = CustomUser.objects.get(pk = 1)
         else:
@@ -254,7 +216,7 @@ class PhotoApi(ModelViewSet):
     serializer_class = serializers.PhotoSerializer
 
 class AddToCart(views.APIView):
- 
+    permission_classes = (permissions_api.DefaultUserPermission,)
     def post(self, request):
         product = Product.objects.get(pk = request.data['product_id'])
         favorite_product, created = FavoriteProducts.objects.get_or_create(product = product, salesman = product.salesman, user = self.request.user)
@@ -266,13 +228,15 @@ class AddToCart(views.APIView):
 class CreateComentApi(generics.CreateAPIView, generics.RetrieveUpdateDestroyAPIView):
     serializer_class = serializers.ComentsSerializer
     queryset = Coments.objects.all()
+    permission_classes = (permissions_api.IsOwnerOrReadOnlyComent, )
+
     def post(self, request, *args, **kwargs):
         _mutable = request.data._mutable
         request.data._mutable = True
         if REACT:
             request.data["author"] = 1
         else:
-            request.data["author"] = request.user
+            request.data["author"] = request.user.id
         request.data._mutable = _mutable
         return super().create(request, *args, **kwargs)
 

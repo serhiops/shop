@@ -1,5 +1,6 @@
 import random
 from django.contrib import messages
+
 def generate_code():
     random.seed()
     return str(random.randint(10000,99999))
@@ -12,25 +13,11 @@ def get_client_ip(request):
         ip = request.META.get('REMOTE_ADDR')
     return ip
 
-def get_views_quantity(model):
-    much = 0
+def get_views_array(model):
+    much = []
     for i in model:
-        much += i.total()
+        much.append(i.total()) 
     return much
-
-def get_max(model):
-    max = 0
-    for i in model:
-        if i.total() > max:
-            max = i.total()
-    return max
-
-def get_min(model):
-    min = 100000000000
-    for i in model:
-        if i.total() < min:
-            min = i.total()
-    return min
 
 def get_error_messages(request, form):
     error_msg = form.errors.as_text().replace("*","").splitlines()

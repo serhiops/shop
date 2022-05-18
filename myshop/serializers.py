@@ -19,10 +19,8 @@ class ComentsSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         delet = validated_data.get("author", False)
-        user = delet.get("username", False)
-        del validated_data["author"]
-        validated_data["author"] = user
-        validated_data["is_active"] = True
+        validated_data["author"] = delet.get("username", False)
+        validated_data['is_active'] = True
         return Coments.objects.create(**validated_data)
 
     def to_representation(self, instance):

@@ -1,5 +1,6 @@
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
+
 from .models import Product, Category,FavoriteProducts,CustomUser, Ip, Ordering, Mark, Photo, Rating
 from . import forms
 from django.contrib.auth import login, logout,authenticate
@@ -12,6 +13,9 @@ from .additionally import func
 from django.views.generic.edit import FormView
 from django.contrib.auth.views import PasswordChangeView, PasswordResetView, PasswordResetConfirmView
 from django.contrib.messages.views import SuccessMessageMixin
+from django.contrib.auth.decorators import user_passes_test
+from .permissions import permissions
+
 
 class Index(ListView, FormView):
     form_class = forms.Filter
@@ -100,7 +104,7 @@ class ProductDetail(DetailView):
             self.get_object().views.add(Ip.objects.get(ip=ip))  
         return super().get(request, *args, **kwargs)
 
-class FavoriteProductsList(ListView):
+class FavoriteProductsList(permissions.AuthenticatedOnlyPermission,permissions.DefaultUserOnlyPermission,ListView):
     template_name = "myshop/favorite_products.html"
     context_object_name = "fav_pr"
 
@@ -113,13 +117,7 @@ class FavoriteProductsList(ListView):
         context["createroomjs"] = True
         return context
 
-    def get(self, *args, **kwargs):
-        if self.request.user.is_authenticated and not self.request.user.is_salesman: 
-            return super().get(self.request, *args, **kwargs)
-        else:
-            return redirect("myshop:index")
-
-class Register(FormView):
+class Register(permissions.AuthenticatedOnlyPermission, FormView):
     form_class = forms.CustomUserCreationForm
     template_name = "myshop/auth/registr.html"
     success_url = reverse_lazy("myshop:register_code")
@@ -149,12 +147,6 @@ class Register(FormView):
             context["salesman_register"] = False
         context["categories"] = Category.objects.all()
         return context
-
-    def get(self, request, *args, **kwargs):
-        if not request.user.is_authenticated:
-            return super().get(request, *args, **kwargs)
-        else:
-            return redirect("myshop:index")
 
 def register_code(request):
     if request.method == 'POST':
@@ -220,32 +212,43 @@ def user_profile(request):
     }
     return render(request,"myshop/user_profile.html", context)
 
+@user_passes_test(lambda user: not user.is_salesman, login_url=reverse_lazy('myshop:index'), redirect_field_name=None)
 def user_orders(request):
-    if not request.user.is_salesman:
-        orders = Ordering.objects.filter(user = request.user, is_done = True)
-        context = {
-            "orders":orders
-        }
-        return render(request, "myshop/user_orders.html", context)
+    orders = Ordering.objects.filter(user = request.user, is_done = True)
+    context = {
+        "orders":orders
+    }
+    return render(request, "myshop/user_orders.html", context)
 
+@user_passes_test(lambda user: not user.is_salesman, login_url=reverse_lazy('myshop:index'), redirect_field_name=None)
 def user_active_oders(request):
-    if not request.user.is_salesman:
-        orders = Ordering.objects.filter(user = request.user, is_done = False)
-        context = {
-            "orders":orders,
-        }
-        return render(request, "myshop/user_active_oders.html", context)
+    orders = Ordering.objects.filter(user = request.user, is_done = False)
+    context = {
+        "orders":orders,
+    }
+    return render(request, "myshop/user_active_oders.html", context)
 
 def set_unactive(request,slug_pr):
     product = get_object_or_404(Product, slug = slug_pr)
-    product.is_active = False
-    product.save(update_fields=["is_active"])
-    return redirect("myshop:statistic")
+    if product.salesman == request.user:
+        product.is_active = False
+        product.save(update_fields=["is_active"])
+        return redirect("myshop:statistic")
+    else:
+        return redirect('myshop:index')
+
+def set_active(request, slug_prd):
+    product = get_object_or_404(Product, slug = slug_prd)
+    if product.salesman == request.user:
+        product.is_active = True
+        product.save(update_fields=["is_active"])
+        return redirect("myshop:statistic")
+    else:
+        return redirect('myshop:index')
 
 def change_email(request):
     if request.method == 'POST':
         form = forms.ChangeEmail(request.POST,instance = request.user)
-        print(form.errors)
         if form.is_valid():
             if form.has_changed():
                 code = func.generate_code()
@@ -280,7 +283,7 @@ def delete_fav_pr(request, pk_fp):
         messages.error(request, "Произошла ошибка!")
     return redirect("myshop:favorite_products")
 
-class AddProduct(FormView):
+class AddProduct(permissions.SalesmanOnlyPermission,FormView):
     form_class = forms.AddProductForm
     template_name = "myshop/add_product.html"
 
@@ -302,141 +305,127 @@ class AddProduct(FormView):
     def form_invalid(self, form):
         func.get_error_messages(self.request, form)
         return super().form_invalid(form)
-  
+
+@user_passes_test(lambda user: user.is_salesman, login_url=reverse_lazy('myshop:index'), redirect_field_name=None)
 def statistic(request):
-    if request.user.is_salesman:
-        categories = Category.objects.all()
-        products = Product.objects.filter(salesman = request.user)
-        much_views = func.get_views_quantity(products)
-        much_fp = FavoriteProducts.objects.filter(salesman = request.user).count()
-        max_views = func.get_max(products)
-        min_views = func.get_min(products)
-        orderings = Ordering.objects.filter(salesman = request.user).count()
-        done_orderings = Ordering.objects.filter(salesman = request.user, is_done = True).count()
-        count_likes = Mark.objects.filter(product__salesman = request.user, like = True).count()
-        count_dislikes = Mark.objects.filter(product__salesman = request.user, dislike = True).count()
-        rating = Rating.objects.filter(product__salesman = request.user).aggregate(average = Avg('rating'))["average"]
+    categories = Category.objects.all()
+    products = Product.objects.filter(salesman = request.user)
 
-        context = {
-            "much_views":much_views,
-            "much_fp":much_fp,
-            "products":products,
-            "max_views":max_views,
-            "min_views":min_views,
-            "orderings":orderings,
-            "categories":categories,
-            "done_orderings":done_orderings,
-            "count_likes":count_likes,
-            "count_dislikes":count_dislikes,
-            "rating":rating,
-            "statisticjs":True
-        }
-        return render(request, "myshop/statistic.html", context)
-    else:
-        return redirect("myshop:index")
+    views_list = func.get_views_array(products)
 
+    much_fp = FavoriteProducts.objects.filter(salesman = request.user).count()
+    orderings = Ordering.objects.filter(salesman = request.user).count()
+    done_orderings = Ordering.objects.filter(salesman = request.user, is_done = True).count()
+    count_likes = Mark.objects.filter(product__salesman = request.user, like = True).count()
+    count_dislikes = Mark.objects.filter(product__salesman = request.user, dislike = True).count()
+    rating = Rating.objects.filter(product__salesman = request.user).aggregate(average = Avg('rating'))["average"]
+
+    context = {
+        "much_views":sum(views_list),
+        "much_fp":much_fp,
+        "products":products,
+        "max_views":max(views_list),
+        "min_views":min(views_list),
+        "orderings":orderings,
+        "categories":categories,
+        "done_orderings":done_orderings,
+        "count_likes":count_likes,
+        "count_dislikes":count_dislikes,
+        "rating":rating,
+        "statisticjs":True
+    }
+
+    return render(request, "myshop/statistic.html", context)
+
+@user_passes_test(lambda user: user.is_salesman, login_url=reverse_lazy('myshop:index'), redirect_field_name=None)
 def detail_statistic(request, slug_pr):
-    if request.user.is_salesman:
-        product = get_object_or_404(Product, slug = slug_pr)
-        much_fp = FavoriteProducts.objects.filter(salesman = request.user , product =product).count()
-        orderings = Ordering.objects.filter(salesman = request.user, product = product).count()
-        done_orderings = Ordering.objects.filter(salesman = request.user, product = product, is_done = True).count()
-        rating = Rating.objects.filter(product = product).aggregate(average = Avg('rating'))["average"]
-        context = {
-            "product":product,
-            "much_fp":much_fp,
-            "orderings":orderings,
-            "done_orderings":done_orderings,
-            "rating":rating,
-        }
-        return render(request, "myshop/detail_statistic.html", context)
-    else:
-        return redirect("myshop:index")
+    product = get_object_or_404(Product, slug = slug_pr)
+    much_fp = FavoriteProducts.objects.filter(salesman = request.user , product =product).count()
+    orderings = Ordering.objects.filter(salesman = request.user, product = product).count()
+    done_orderings = Ordering.objects.filter(salesman = request.user, product = product, is_done = True).count()
+    rating = Rating.objects.filter(product = product).aggregate(average = Avg('rating'))["average"]
+    context = {
+        "product":product,
+        "much_fp":much_fp,
+        "orderings":orderings,
+        "done_orderings":done_orderings,
+        "rating":rating,
+    }
+    return render(request, "myshop/detail_statistic.html", context)
 
+@user_passes_test(lambda user: not user.is_salesman, login_url=reverse_lazy('myshop:index'), redirect_field_name=None)
 def ordering(request, pk_sal, slug_prod):
-    if not request.user.is_salesman:
-        salesman = get_object_or_404(CustomUser, is_salesman = True,pk = pk_sal)
-        product = get_object_or_404(Product, slug = slug_prod)
-        if request.method == "POST":
-            form = forms.OrderingForm(request.POST)
-            if form.is_valid():
-                post_office = form.cleaned_data["post_office"]
-                number = form.cleaned_data['number']
-                Ordering.objects.create(user = request.user, salesman = salesman, product=product, post_office = post_office, number = number)
-                send_mail('Новый заказ!',
+    salesman = get_object_or_404(CustomUser, is_salesman = True,pk = pk_sal)
+    product = get_object_or_404(Product, slug = slug_prod)
+    if request.method == "POST":
+        form = forms.OrderingForm(request.POST)
+        if form.is_valid():
+            post_office = form.cleaned_data["post_office"]
+            number = form.cleaned_data['number']
+            Ordering.objects.create(user = request.user, salesman = salesman, product=product, post_office = post_office, number = number)
+            send_mail('Новый заказ!',
                     f'Добрый день, {salesman.first_name} {salesman.last_name}! Только что у вас заказали {product.name} в город {request.user.city}, отделение почты - {post_office.name}, количиство - {number}.Контактный номер : {request.user.number_of_phone}',
                     'serrheylitvinenko@gmail.com',
                     [salesman.email],
                     fail_silently=False
                 )
-                messages.success(request, "Вы цспешно оформили заказ! Продавец свяжется с вами в скором времени.")
-                return redirect("myshop:index")
-            else:
-                messages.success(request, "Произошла ошибка")
+            messages.success(request, "Вы цспешно оформили заказ! Продавец свяжется с вами в скором времени.")
+            return redirect("myshop:index")
         else:
-            form = forms.OrderingForm()
-        context = {
-            "salesman":salesman,
-            "product":product,
-            "form":form,
-            "ChangeOrderingDatajs":True ,
-        }
-        return render(request, "myshop/ordering.html", context)
+            messages.success(request, "Произошла ошибка")
     else:
-        return redirect("myshop:index")
+        form = forms.OrderingForm()
+    context = {
+        "salesman":salesman,
+        "product":product,
+        "form":form,
+        "ChangeOrderingDatajs":True ,
+    }
+    return render(request, "myshop/ordering.html", context)
 
 def set_done(request,pk_ord):
     ordering = get_object_or_404(Ordering, pk = pk_ord)
-    ordering.is_done = True
-    ordering.save(update_fields=["is_done"])
-    return redirect("myshop:user_orders")
+    if(ordering.user == request.user):
+        ordering.is_done = True
+        ordering.save(update_fields=["is_done"])
+        return redirect("myshop:user_orders")
+    else:
+        return redirect('myshop:index')
 
-def set_active(request, slug_prd):
-    product = get_object_or_404(Product, slug = slug_prd)
-    product.is_active = True
-    product.save(update_fields=["is_active"])
-    return redirect("myshop:statistic")
-
+@user_passes_test(lambda user: user.is_salesman, login_url=reverse_lazy('myshop:index'), redirect_field_name=None)
 def backorders(request):
-    if request.user.is_salesman:
-        products = Ordering.objects.filter(salesman = request.user, is_done = False, is_take = False, is_sent = False)
-        context = {
-            "products":products,
-            "title":"Заказы",
-            "step":0,
-            'product_sendingjs':True
-        }
-        return render(request, "myshop/product_sending.html", context)
-    else:
-        return redirect("myshop:index")
+    products = Ordering.objects.filter(salesman = request.user, is_done = False, is_take = False, is_sent = False)
+    context = {
+        "products":products,
+        "title":"Заказы",
+        "step":0,
+        'product_sendingjs':True
+    }
+    return render(request, "myshop/product_sending.html", context)
 
+@user_passes_test(lambda user: user.is_salesman, login_url=reverse_lazy('myshop:index'), redirect_field_name=None)
 def completed_orders(request):
-    if request.user.is_salesman:
-        products = Ordering.objects.filter(salesman = request.user, is_done = True, is_sent = True)
-        context = {
-            "products":products,
-            "title":"Выполненные заказы",
-        }
-        return render(request, "myshop/product_sending.html", context)
-    else:
-        return redirect("myshop:user_profile")
-    
-def accepted_products(request):
-    if request.user.is_salesman:
-        products = Ordering.objects.filter(salesman = request.user, is_done = False, is_take = True, is_sent = False)
-        wait_products = Ordering.objects.filter(salesman = request.user, is_done = False, is_take = True, is_sent = True)
-        context = {
-            "products":products,
-            "title":"Принятые товары",
-            "wait_products":wait_products,
-            "step":1,
-            'product_sendingjs':True
-        }
-        return render(request, "myshop/product_sending.html", context)
-    else:
-        return redirect("myshop:index")
+    products = Ordering.objects.filter(salesman = request.user, is_done = True, is_sent = True)
+    context = {
+        "products":products,
+        "title":"Выполненные заказы",
+    }
+    return render(request, "myshop/product_sending.html", context)
 
-class ChangeProduct(UpdateView):
+@user_passes_test(lambda user: user.is_salesman, login_url=reverse_lazy('myshop:index'), redirect_field_name=None) 
+def accepted_products(request):
+    products = Ordering.objects.filter(salesman = request.user, is_done = False, is_take = True, is_sent = False)
+    wait_products = Ordering.objects.filter(salesman = request.user, is_done = False, is_take = True, is_sent = True)
+    context = {
+        "products":products,
+        "title":"Принятые товары",
+        "wait_products":wait_products,
+        "step":1,
+        'product_sendingjs':True
+    }
+    return render(request, "myshop/product_sending.html", context)
+
+class ChangeProduct(permissions.SalesmanOnlyPermission,UpdateView):
     model = Product
     template_name = "myshop/change_product.html"
     fields = ["name", "description", "price"]
@@ -469,8 +458,7 @@ def salesman_profile(request, salesman_slug):
     }
     return render(request, "myshop/salesman_profile.html", context)
 
-class ChangePassoword(PasswordChangeView):
-    """Изменение пароля без почты"""
+class ChangePassword(PasswordChangeView):
     template_name = "myshop/change_password.html"
 
     def get_form(self, *args, **kwargs):
@@ -487,7 +475,7 @@ class ChangePassoword(PasswordChangeView):
     def form_valid(self, form):
         if form.cleaned_data["old_password"] == form.cleaned_data["new_password1"] == form.cleaned_data["new_password2"]:
             messages.error(self.request, "У вас в данный момент такой же пароль!")
-            return redirect("change_password")
+            return redirect("myshop:change_password")
         messages.success(self.request, "Вы успешно сменили пароль!")
         return super().form_valid(form)
 
@@ -510,7 +498,6 @@ class PasswordReset(SuccessMessageMixin,PasswordResetView):
 
 class PasswordResetConfirm(SuccessMessageMixin, PasswordResetConfirmView):
     template_name = "myshop/reset_password/password_confirm.html"
-    #post_reset_login = True
     success_message = "Вы успешно изменили пароль"
     success_url = reverse_lazy("myshop:login")
 

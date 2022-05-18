@@ -13,8 +13,6 @@ routerPhoto.register(r'photo', api.PhotoApi)
 urlpatterns = [
     path("api/v1/product/<int:pk>/", api.ProductDetail.as_view()),
     path("api/v1/product/", api.ProductAPIList.as_view()),
-    path("api/v1/marks/",api.MarkAPIListOrCreate.as_view(),name = "mark_list"),
-    path("api/v1/marks/<int:pk>/",api.MarkAPIUpdate.as_view(),name = "mark_pk"),
     path("api/v1/", include(routerUser.urls)),
     path("api/v1/", include(routerFavoriteProducts.urls)),
     path("api/v1/current_user/", api.CurrentUser.as_view()),
