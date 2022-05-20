@@ -31,9 +31,9 @@ class CreateComent extends React.Component {
                 data: {
                     text: text.val(),
                     product: this.state.product.id,
-                    user: this.state.current_user.id,
                     csrfmiddlewaretoken: getCookie('csrftoken'),
                 },
+                headers: { "X-CSRFToken": getCookie('csrftoken') },
                 success: data => {
                     this.setState({
                         coments: [data, ...this.state.coments]

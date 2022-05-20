@@ -3,7 +3,7 @@ import $ from 'jquery';
 import getCookie from "./getCookie";
 import { FULL_PATH } from "../config";
 
-const Likes = ({ likes, dislikes, product, current_user,is_liked_by_current_user,is_disliked_by_current_user }) => {
+const Likes = ({ likes, dislikes, product,is_liked_by_current_user,is_disliked_by_current_user }) => {
 
     let text_like = 'Like';
     let text_dislike = 'Dislike';
@@ -18,13 +18,12 @@ const Likes = ({ likes, dislikes, product, current_user,is_liked_by_current_user
     const addLike = () => {
         $.ajax({
             type: 'POST',
-            url: FULL_PATH+`/api/v1/react/`,
+            url: FULL_PATH+`/api/v1/react/${product.id}/`,
             data: {
-                product: product.id,
-                user: current_user.id,
                 like: true,
                 csrfmiddlewaretoken: getCookie('csrftoken'),
             },
+            headers: { "X-CSRFToken": getCookie('csrftoken') },
             success: (data) => {
                 if (text_l === 'Like' && text_d === 'Dislike') {
                     setTextLike('Liked');
@@ -47,13 +46,12 @@ const Likes = ({ likes, dislikes, product, current_user,is_liked_by_current_user
     const addDislike = () => {
         $.ajax({
             type: 'POST',
-            url: FULL_PATH+`/api/v1/react/`,
+            url: FULL_PATH+`/api/v1/react/${product.id}/`,
             data: {
-                product: product.id,
-                user: current_user.id,
                 dislike: true,
                 csrfmiddlewaretoken: getCookie('csrftoken'),
             },
+            headers: { "X-CSRFToken": getCookie('csrftoken') },
             success: (data) => {
                 if (text_d === 'Dislike' && text_l === 'Like') {
                     setTextDislike('Disliked');

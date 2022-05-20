@@ -16,6 +16,7 @@ const Rating = ({ current_user_rating, average_rating, product, is_bought }) => 
                 rating: Number(mark),
                 csrfmiddlewaretoken: getCookie('csrftoken'),
             },
+            headers: { "X-CSRFToken": getCookie('csrftoken') },
             success: (data) => {
                 if (data.del) {
                     $(`#rating-${mark}`).removeClass("active");

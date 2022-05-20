@@ -1,6 +1,5 @@
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
-
 from .models import Product, Category,FavoriteProducts,CustomUser, Ip, Ordering, Mark, Photo, Rating
 from . import forms
 from django.contrib.auth import login, logout,authenticate
@@ -117,7 +116,7 @@ class FavoriteProductsList(permissions.AuthenticatedOnlyPermission,permissions.D
         context["createroomjs"] = True
         return context
 
-class Register(permissions.AuthenticatedOnlyPermission, FormView):
+class Register(permissions.AnonymousOnlyPermission, FormView):
     form_class = forms.CustomUserCreationForm
     template_name = "myshop/auth/registr.html"
     success_url = reverse_lazy("myshop:register_code")

@@ -9,14 +9,22 @@ class AuthenticatedOnlyPermission(PermissionDenied):
         return super(AuthenticatedOnlyPermission, self).dispatch(request, *args, **kwargs)
 
 class DefaultUserOnlyPermission(PermissionDenied):
+
     def dispatch(self, request, *args, **kwargs):
         if self.request.user.is_salesman:
             return redirect('myshop:index')
         return super(DefaultUserOnlyPermission, self).dispatch(request, *args, **kwargs)
 
 class SalesmanOnlyPermission(PermissionDenied):
+
     def dispatch(self, request, *args, **kwargs):
         if not self.request.user.is_salesman:
             return redirect('myshop:index')
         return super(SalesmanOnlyPermission, self).dispatch(request, *args, **kwargs)
 
+class AnonymousOnlyPermission(PermissionDenied):
+    
+    def dispatch(self, request, *args, **kwargs):
+        if not self.request.user.is_anonymous:
+            return redirect('myshop:index')
+        return super(AnonymousOnlyPermission, self).dispatch(request, *args, **kwargs)

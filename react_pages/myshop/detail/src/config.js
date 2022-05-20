@@ -14,5 +14,4 @@ if (DEBUG===false){
 }
 
 const FULL_PATH = PROTOCOL + '//'+ HOST;
-
 export {HOST, PRODUCT, PROTOCOL, FULL_PATH}

@@ -24,6 +24,7 @@ class SalesmanPermission(IsAuthenticated):
 class IsOwnerOrReadOnly(IsAuthenticated,permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
         if request.method in permissions.SAFE_METHODS:
+            print(request.method)
             return True
         return obj.user == request.user
 

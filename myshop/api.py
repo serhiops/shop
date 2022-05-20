@@ -1,7 +1,5 @@
-from django.forms import ValidationError
 from .models import CustomUser, Product, Mark, Coments, FavoriteProducts, Rating, PostOfices, Ordering, Product, Photo
 from . import serializers
-from django.utils.text import slugify
 from rest_framework import generics
 #from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -12,35 +10,15 @@ from django.db.models import Avg
 from config.main_config import REACT
 from .permissions import permissions_api
 from rest_framework.permissions import IsAuthenticated
- 
+from .additionally.decorators import incorrect_number 
+
 class ProductAPIList(generics.ListCreateAPIView):
     queryset = Product.objects.all()
     serializer_class = serializers.ProductSerializer
 
-    def create(self, request, *args, **kwargs):
-        _mutable = request.data._mutable
-        request.data._mutable = True
-        serializer = self.get_serializer(data=request.data)
-        serializer.initial_data["slug"] =slugify(serializer.initial_data["name"])
-        request.data._mutable = _mutable
-        return super().create(request, *args, **kwargs)
-
 class ProductDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Product.objects.all()
     serializer_class = serializers.ProductSerializer
-
-    def update(self, request, *args, **kwargs):
-        _mutable = request.data._mutable
-        request.data._mutable = True
-        request.data["slug"] = slugify(request.data.get("name"))
-        request.data._mutable = _mutable
-        return super().update(request, *args, **kwargs)
-
-    def patch(self, request, *args, **kwargs):
-        product = Product.objects.get(pk = kwargs["pk"])
-        product.is_active = not product.is_active
-        product.save()
-        return Response(serializers.ProductSerializer(product).data)
 
 class ComentViewset(ModelViewSet):
     queryset = Coments.objects.all()
@@ -155,17 +133,12 @@ class ReactAPI(generics.RetrieveDestroyAPIView):
                         'is_bought':is_bought,
                         'company_name':product.salesman.company})
 
-class ReactAPIPost(generics.ListCreateAPIView):
-    queryset = Mark.objects.all()
-    serializer_class = serializers.MarkSerializer
-    permission_classes = (permissions_api.IsOwnerOrReadOnly,)
-
     def post(self, request, *args, **kwargs):
         if REACT:
             user = CustomUser.objects.get(pk = 1)
         else:
             user = self.request.user
-        product = Product.objects.get(pk = request.data["product"])
+        product = Product.objects.get(pk = kwargs["pk"])
         if request.data.get('like', False):
             mark, created = Mark.objects.get_or_create(product = product, user = user)
             if not created and mark.like == True:
@@ -190,11 +163,12 @@ class ReactAPIPost(generics.ListCreateAPIView):
             mark.save(update_fields=['like', 'dislike'])
         return Response(serializers.MarkSerializer(mark).data)
 
-class ReactMarkApi(generics.ListCreateAPIView,): 
+class ReactRatingApi(generics.ListCreateAPIView,): 
     queryset = Rating.objects.all()
     serializer_class = serializers.RatingSerializer
-    permission_classes = (permissions_api.DefaultUserPermission, permissions_api.IsOwnerOrReadOnly)
+    #permission_classes = (permissions_api.DefaultUserPermission, permissions_api.IsOwnerOrReadOnly)
 
+    @incorrect_number
     def post(self, request, *args, **kwargs):
         """ create, update and delete mark """
         if REACT:
@@ -228,13 +202,13 @@ class AddToCart(views.APIView):
 class CreateComentApi(generics.CreateAPIView, generics.RetrieveUpdateDestroyAPIView):
     serializer_class = serializers.ComentsSerializer
     queryset = Coments.objects.all()
-    permission_classes = (permissions_api.IsOwnerOrReadOnlyComent, )
+    #permission_classes = (permissions_api.IsOwnerOrReadOnlyComent, )
 
     def post(self, request, *args, **kwargs):
         _mutable = request.data._mutable
         request.data._mutable = True
         if REACT:
-            request.data["author"] = 1
+            request.data["author"] = CustomUser.objects.get(pk = 1).pk
         else:
             request.data["author"] = request.user.id
         request.data._mutable = _mutable

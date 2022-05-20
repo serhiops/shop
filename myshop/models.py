@@ -1,11 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-from django.forms import ValidationError
 from django.urls import reverse
 from djmoney.models.fields import MoneyField
 from django.utils.text import slugify
-import random
-from moneyed import Money, UAH
 from .additionally.func import generate_code
 
 class CustomUser(AbstractUser):
@@ -80,24 +77,16 @@ class Product(models.Model):
         return self.views.count()
 
     def save(self, *args, **kwargs):
-        if not self.slug:
-            self.slug = slugify(self.name)
-            product = Product.objects.filter(slug = self.slug)
-            if product:
-                random.seed()
-                self.slug += str(random.randint(10000,99999))
+        self.slug = slugify(self.name)
+        if Product.objects.filter(slug = self.slug):
+            self.slug += str(generate_code())
         return super().save(*args, **kwargs)
-
-    def clean(self):
-        if self.price < Money("0", UAH):
-            raise ValidationError("Цена не может быить отрицательной!")
-        if len(self.description)<50:
-            raise ValidationError("Описание слишком короткое, опишите свой товар получше!")
-        if len(self.description.split())<10:
-            raise ValidationError("Описание состоит из слишком малого количества слов, опишите свой товар получше!")
 
     def get_absolute_url(self):
         return reverse("myshop:detail", kwargs={"prod_pk":self.pk,"prod_slug":self.slug})
+
+    def get_absolute_url_toApi(self):
+        return reverse('myshop:detail-product-api', kwargs={'pk':self.pk})
 
     def get_absolute_url_detail_statistic(self):
         return reverse("myshop:detail_statistic", kwargs={"slug_pr":self.slug})

@@ -11,11 +11,10 @@ routerMessages.register(r'messages', api.MessagesApi )
 routerRooms.register(r'rooms', api.RoomApi)
 
 app_name = 'chat'
-
-
+ 
 urlpatterns = [
     path('user_chats/', views.user_chats, name = 'user_chats'),
 
     path("api/v1/", include(routerMessages.urls)),
     path("api/v1/", include(routerRooms.urls)),
-]
+] 
