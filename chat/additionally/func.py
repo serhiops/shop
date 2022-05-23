@@ -26,5 +26,3 @@ def delete_message(id):
 def get_serializer_user_react():
     return UserSerializer(CustomUser.objects.get(pk = 1)).data
 
-def get_user_react():
-    return CustomUser.objects.get(pk = 1)

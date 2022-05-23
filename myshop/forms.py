@@ -108,9 +108,9 @@ class AddProductForm(forms.ModelForm):
             "description":forms.Textarea(attrs={
                 "class":"form-control",
             }),
-            #"price":forms.Select(attrs={
-            #   "class":"form-control",
-            #}), 
+            """ "price":forms.Select(attrs={
+               "class":"form-control",
+            }), """
             "category":forms.Select(attrs={
                 "class":"form-control",
             })
@@ -151,21 +151,18 @@ class DetailFilter(forms.Form):
 
     def clean_end_price(self):
         end_price = self.cleaned_data["end_price"]
-        if end_price == None:
-            end_price = Product.objects.filter(price__gte = self.cleaned_data["begin_price"]).values("price")
-            max = end_price[0]["price"]
-            for i in end_price:
-                if i["price"] > max:
-                    max = i["price"]
-            return max                
+        if end_price is None:
+            end_p = Product.objects.filter(price__gte = self.cleaned_data["begin_price"]).values_list("price")
+            return max(*end_p)            
         return end_price
 
     def clean_begin_price(self):
         begin_price = self.cleaned_data["begin_price"]
-        if begin_price == None:
+        if begin_price is None:
             return Money("0", UAH)
-        max_price = max(Product.objects.filter(is_active = True).values_list("price"))
-        if Money(max_price[0], UAH) < Money(begin_price, UAH):
+        
+        max_price, price_currency = max(Product.objects.filter(is_active = True).values_list("price","price_currency"))
+        if Money(max_price, price_currency) < Money(begin_price, price_currency):
             begin_price = max_price
         return begin_price
 

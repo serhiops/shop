@@ -15,6 +15,7 @@ class CustomUser(AbstractUser):
     class Meta:
         verbose_name = "Пользователь"
         verbose_name_plural = "Пользователи"
+        ordering = ('-date_joined',)
 
     def __str__(self):
         return f"{self.username} is salesman: {self.is_salesman} is active: {self.is_active}"

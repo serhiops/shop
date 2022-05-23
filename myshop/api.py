@@ -10,7 +10,8 @@ from django.db.models import Avg
 from config.main_config import REACT
 from .permissions import permissions_api
 from rest_framework.permissions import IsAuthenticated
-from .additionally.decorators import incorrect_number 
+from .additionally.decorators import incorrect_number
+from myshop.additionally.decorators import currentUser
 
 class ProductAPIList(generics.ListCreateAPIView):
     queryset = Product.objects.all()
@@ -30,13 +31,11 @@ class ComentViewset(ModelViewSet):
         return Response({"coments":serializers.ComentsSerializer(coments,many=True).data, 
                         "current_user":serializers.UserSerializer(request.user).data})
 
+    @currentUser
     def create(self, request, *args, **kwargs):
         _mutable = request.data._mutable
         request.data._mutable = True
-        if REACT:
-            request.data["author"] = 1
-        else:
-            request.data["author"] = request.user
+        request.data["author"] = request.user.id
         request.data._mutable = _mutable
         return super().create(request, *args, **kwargs)
 
@@ -87,6 +86,7 @@ class ReactAPI(generics.RetrieveDestroyAPIView):
     queryset = Product.objects.all()
     serializer_class = serializers.ProductSerializer
 
+    @currentUser
     def get(self, request, *args, **kwargs):
         product = Product.objects.get(pk = kwargs["pk"])
         image =serializers.PhotoSerializer(product.photos.all(), many = True).data
@@ -94,35 +94,30 @@ class ReactAPI(generics.RetrieveDestroyAPIView):
         rating = Rating.objects.filter(product = product)
         likes = Mark.objects.filter(product = product, like = True)
         dislikes = Mark.objects.filter(product = product, dislike = True)
-        if not REACT:
-            if request.user.id == None:
-                return Response({
-                    'product':serializers.ProductSerializer(product).data, 
-                    'likes':likes.count(),
-                    'dislikes': dislikes.count(), 
-                    'current_user': False,
-                    "coments":serializers.ComentsSerializer(coments, many = True).data,
-                    'company_name':product.salesman.company,
-                    'images':image
-                })
-        if REACT:
-            current_user = CustomUser.objects.get(pk = 1)
-        else:
-            current_user = self.request.user
-        is_liked_by_current_user = likes.filter(user = current_user).count()
-        is_disliked_by_current_user = dislikes.filter(user = current_user).count()
+        if request.user.id == None and not REACT:
+            return Response({
+                'product':serializers.ProductSerializer(product).data, 
+                'likes':likes.count(),
+                'dislikes': dislikes.count(), 
+                'current_user': False,
+                "coments":serializers.ComentsSerializer(coments, many = True).data,
+                'company_name':product.salesman.company,
+                'images':image
+            })
+        is_liked_by_current_user = likes.filter(user = request.user).count()
+        is_disliked_by_current_user = dislikes.filter(user = request.user).count()
         try:
-            current_user_rating = serializers.RatingSerializer(rating.get(user = current_user)).data
+            current_user_rating = serializers.RatingSerializer(rating.get(user = request.user)).data
         except:
             current_user_rating = False
-        if Ordering.objects.filter(user = current_user, product = product):
+        if Ordering.objects.filter(user = request.user, product = product):
             is_bought = True
         else:
             is_bought = False
         return Response({'product':serializers.ProductSerializer(product).data, 
                         'likes':likes.count(),
                         'dislikes': dislikes.count(), 
-                        'current_user': serializers.UserSerializer(current_user).data,
+                        'current_user': serializers.UserSerializer(request.user).data,
                         "is_liked_by_current_user":bool(is_liked_by_current_user),
                         "is_disliked_by_current_user":bool(is_disliked_by_current_user),
                         "coments":serializers.ComentsSerializer(coments, many = True).data,
@@ -132,15 +127,11 @@ class ReactAPI(generics.RetrieveDestroyAPIView):
                         'images':image,
                         'is_bought':is_bought,
                         'company_name':product.salesman.company})
-
+    @currentUser
     def post(self, request, *args, **kwargs):
-        if REACT:
-            user = CustomUser.objects.get(pk = 1)
-        else:
-            user = self.request.user
         product = Product.objects.get(pk = kwargs["pk"])
         if request.data.get('like', False):
-            mark, created = Mark.objects.get_or_create(product = product, user = user)
+            mark, created = Mark.objects.get_or_create(product = product, user = request.user)
             if not created and mark.like == True:
                 mark.delete()
                 return Response({"delete":True})
@@ -151,7 +142,7 @@ class ReactAPI(generics.RetrieveDestroyAPIView):
                 mark.like = True
             mark.save(update_fields=['like', 'dislike'])
         elif request.data.get('dislike', False):
-            mark, created = Mark.objects.get_or_create(product = product, user = user)
+            mark, created = Mark.objects.get_or_create(product = product, user = request.user)
             if not created and mark.dislike == True:
                 mark.delete()
                 return Response({"delete":True})
@@ -168,15 +159,12 @@ class ReactRatingApi(generics.ListCreateAPIView,):
     serializer_class = serializers.RatingSerializer
     #permission_classes = (permissions_api.DefaultUserPermission, permissions_api.IsOwnerOrReadOnly)
 
-    @incorrect_number
+    @currentUser
+    @incorrect_number(cnumbers_max=Rating.GREAT , cnumbers_min=Rating.VERY_BAD)
     def post(self, request, *args, **kwargs):
-        """ create, update and delete mark """
-        if REACT:
-            user = CustomUser.objects.get(pk = 1)
-        else:
-            user = self.request.user 
+        """ create, update and delete rating """
         product = Product.objects.get(pk = request.data["product"])
-        rating,created = Rating.objects.get_or_create(user = user,product = product )
+        rating,created = Rating.objects.get_or_create(user = request.user,product = product )
         if not created and rating.rating == int(request.data.get('rating', False)):
             rating.delete()
             return Response({"average_rating":Rating.objects.filter(product = product).aggregate(avg = Avg('rating'))["avg"], 'del':True})
@@ -193,7 +181,7 @@ class AddToCart(views.APIView):
     permission_classes = (permissions_api.DefaultUserPermission,)
     def post(self, request):
         product = Product.objects.get(pk = request.data['product_id'])
-        favorite_product, created = FavoriteProducts.objects.get_or_create(product = product, salesman = product.salesman, user = self.request.user)
+        _, created = FavoriteProducts.objects.get_or_create(product = product, salesman = product.salesman, user = self.request.user)
         if created:
             return Response({'type':'success', 'text':f'В корзину добавлено {product.name}'})
         else:
@@ -203,14 +191,12 @@ class CreateComentApi(generics.CreateAPIView, generics.RetrieveUpdateDestroyAPIV
     serializer_class = serializers.ComentsSerializer
     queryset = Coments.objects.all()
     #permission_classes = (permissions_api.IsOwnerOrReadOnlyComent, )
-
+    
+    @currentUser
     def post(self, request, *args, **kwargs):
         _mutable = request.data._mutable
         request.data._mutable = True
-        if REACT:
-            request.data["author"] = CustomUser.objects.get(pk = 1).pk
-        else:
-            request.data["author"] = request.user.id
+        request.data["author"] = request.user.id
         request.data._mutable = _mutable
         return super().create(request, *args, **kwargs)
 

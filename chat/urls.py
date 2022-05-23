@@ -15,6 +15,6 @@ app_name = 'chat'
 urlpatterns = [
     path('user_chats/', views.user_chats, name = 'user_chats'),
 
-    path("api/v1/", include(routerMessages.urls)),
-    path("api/v1/", include(routerRooms.urls)),
+    path("api/v1/", include(routerMessages.urls), name = 'message-api'),
+    path("api/v1/", include(routerRooms.urls), name = 'room-api'),
 ] 

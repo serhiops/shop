@@ -1,27 +1,26 @@
 from rest_framework.viewsets import ModelViewSet
 from myshop.models import Product
 from .models import Messages, Room
-from myshop.models import CustomUser
 from .serializers import RoomSerializer, MessagesSerializer
 from rest_framework.response import Response
 from myshop.serializers import UserSerializer
 from django.utils.text import slugify
-from config.main_config import REACT
 from myshop.permissions.permissions_api import IsOwnerOrReadOnlyComent
-
+from myshop.additionally.decorators import currentUser
 
 class MessagesApi(ModelViewSet):
     queryset = Messages.objects.all()
     serializer_class = MessagesSerializer
     permission_classes = (IsOwnerOrReadOnlyComent,)
 
+    @currentUser
     def create(self, request, *args, **kwargs):
         _mutable = request.data._mutable
         request.data._mutable = True
 
         data = self.request.data
         room = data.get("room", False)
-        if type(room) == int and int(room):
+        if isinstance(room, int) and int(room):
             data["room"] = room
         else:
             room = Room.objects.get(name = room).pk
@@ -38,7 +37,8 @@ class MessagesApi(ModelViewSet):
 class RoomApi(ModelViewSet):
     queryset = Room.objects.all()
     serializer_class = RoomSerializer
-
+    
+    @currentUser
     def create(self, request, *args, **kwargs):
         product_id = request.data.get("product", False)
         if product_id:
@@ -48,15 +48,12 @@ class RoomApi(ModelViewSet):
             return Response({"data":RoomSerializer(room).data})
         return super().create(self, request, *args, **kwargs)
 
+    @currentUser
     def list(self, request, *args, **kwargs):
-        if REACT:
-            current_user = CustomUser.objects.get(pk = 1)
+        if not request.user.is_salesman:
+            user_chats = Room.objects.filter(user = request.user)
         else:
-            current_user = request.user
-        if not current_user.is_salesman:
-            user_chats = Room.objects.filter(user = current_user)
-        else:
-            user_chats = Room.objects.filter(salesman = current_user)
+            user_chats = Room.objects.filter(salesman = request.user)
         return Response({'user_chats': RoomSerializer(user_chats, many = True).data,
-                        'current_user':UserSerializer(current_user).data})
+                        'current_user':UserSerializer(request.user).data})
     

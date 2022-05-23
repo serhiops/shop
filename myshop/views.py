@@ -15,6 +15,7 @@ from django.contrib.messages.views import SuccessMessageMixin
 from django.contrib.auth.decorators import user_passes_test
 from .permissions import permissions
 
+URL_REDIRECT = 'myshop:index'
 
 class Index(ListView, FormView):
     form_class = forms.Filter
@@ -45,6 +46,8 @@ class Index(ListView, FormView):
         return redirect('myshop:index')
 
 class ByCategory(ListView, FormView):
+    model = Product
+    object_list = None
     form_class = forms.DetailFilter
     context_object_name = "products"
     template_name = "myshop/by_category.html"
@@ -211,7 +214,7 @@ def user_profile(request):
     }
     return render(request,"myshop/user_profile.html", context)
 
-@user_passes_test(lambda user: not user.is_salesman, login_url=reverse_lazy('myshop:index'), redirect_field_name=None)
+@user_passes_test(lambda user: not user.is_salesman, login_url=reverse_lazy(URL_REDIRECT), redirect_field_name=None)
 def user_orders(request):
     orders = Ordering.objects.filter(user = request.user, is_done = True)
     context = {
@@ -219,7 +222,7 @@ def user_orders(request):
     }
     return render(request, "myshop/user_orders.html", context)
 
-@user_passes_test(lambda user: not user.is_salesman, login_url=reverse_lazy('myshop:index'), redirect_field_name=None)
+@user_passes_test(lambda user: not user.is_salesman, login_url=reverse_lazy(URL_REDIRECT), redirect_field_name=None)
 def user_active_oders(request):
     orders = Ordering.objects.filter(user = request.user, is_done = False)
     context = {
@@ -305,7 +308,11 @@ class AddProduct(permissions.SalesmanOnlyPermission,FormView):
         func.get_error_messages(self.request, form)
         return super().form_invalid(form)
 
-@user_passes_test(lambda user: user.is_salesman, login_url=reverse_lazy('myshop:index'), redirect_field_name=None)
+    def get(self, request, *args, **kwargs):
+        print(self.get_form())
+        return super().get(request, *args, **kwargs)
+
+@user_passes_test(lambda user: user.is_salesman, login_url=reverse_lazy(URL_REDIRECT), redirect_field_name=None)
 def statistic(request):
     categories = Category.objects.all()
     products = Product.objects.filter(salesman = request.user)
@@ -336,7 +343,7 @@ def statistic(request):
 
     return render(request, "myshop/statistic.html", context)
 
-@user_passes_test(lambda user: user.is_salesman, login_url=reverse_lazy('myshop:index'), redirect_field_name=None)
+@user_passes_test(lambda user: user.is_salesman, login_url=reverse_lazy(URL_REDIRECT), redirect_field_name=None)
 def detail_statistic(request, slug_pr):
     product = get_object_or_404(Product, slug = slug_pr)
     much_fp = FavoriteProducts.objects.filter(salesman = request.user , product =product).count()
@@ -352,7 +359,7 @@ def detail_statistic(request, slug_pr):
     }
     return render(request, "myshop/detail_statistic.html", context)
 
-@user_passes_test(lambda user: not user.is_salesman, login_url=reverse_lazy('myshop:index'), redirect_field_name=None)
+@user_passes_test(lambda user: not user.is_salesman, login_url=reverse_lazy(URL_REDIRECT), redirect_field_name=None)
 def ordering(request, pk_sal, slug_prod):
     salesman = get_object_or_404(CustomUser, is_salesman = True,pk = pk_sal)
     product = get_object_or_404(Product, slug = slug_prod)
@@ -391,7 +398,7 @@ def set_done(request,pk_ord):
     else:
         return redirect('myshop:index')
 
-@user_passes_test(lambda user: user.is_salesman, login_url=reverse_lazy('myshop:index'), redirect_field_name=None)
+@user_passes_test(lambda user: user.is_salesman, login_url=reverse_lazy(URL_REDIRECT), redirect_field_name=None)
 def backorders(request):
     products = Ordering.objects.filter(salesman = request.user, is_done = False, is_take = False, is_sent = False)
     context = {
@@ -402,7 +409,7 @@ def backorders(request):
     }
     return render(request, "myshop/product_sending.html", context)
 
-@user_passes_test(lambda user: user.is_salesman, login_url=reverse_lazy('myshop:index'), redirect_field_name=None)
+@user_passes_test(lambda user: user.is_salesman, login_url=reverse_lazy(URL_REDIRECT), redirect_field_name=None)
 def completed_orders(request):
     products = Ordering.objects.filter(salesman = request.user, is_done = True, is_sent = True)
     context = {
@@ -411,7 +418,7 @@ def completed_orders(request):
     }
     return render(request, "myshop/product_sending.html", context)
 
-@user_passes_test(lambda user: user.is_salesman, login_url=reverse_lazy('myshop:index'), redirect_field_name=None) 
+@user_passes_test(lambda user: user.is_salesman, login_url=reverse_lazy(URL_REDIRECT), redirect_field_name=None) 
 def accepted_products(request):
     products = Ordering.objects.filter(salesman = request.user, is_done = False, is_take = True, is_sent = False)
     wait_products = Ordering.objects.filter(salesman = request.user, is_done = False, is_take = True, is_sent = True)
