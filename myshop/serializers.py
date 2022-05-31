@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Product, Mark, Coments, CustomUser, FavoriteProducts, Rating, PostOfices, Ordering, Photo
+from .models import Product, Mark, Coments, CustomUser, FavoriteProducts, Rating, Ordering, Photo
 
 class ProductSerializer(serializers.ModelSerializer):
     class Meta:
@@ -44,11 +44,6 @@ class RatingSerializer(serializers.ModelSerializer):
         model = Rating
         fields = "__all__"
 
-class PostOficesSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = PostOfices
-        fields = "__all__"
-
 class OrderingSerializer(serializers.ModelSerializer):
     class Meta:
         model = Ordering
@@ -56,7 +51,9 @@ class OrderingSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         response = super().to_representation(instance)
-        response['product_name'] = instance.product.name
+        response['product'] = ProductSerializer(instance.product).data
+        response['salesman'] = UserSerializer(instance.salesman).data
+        response['user'] = UserSerializer(instance.user).data
         return response
 
 class PhotoSerializer(serializers.ModelSerializer):

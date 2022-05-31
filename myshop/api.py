@@ -1,4 +1,5 @@
-from .models import CustomUser, Product, Mark, Coments, FavoriteProducts, Rating, PostOfices, Ordering, Product, Photo
+from django.http import HttpResponseRedirect
+from .models import CustomUser, Product, Mark, Coments, FavoriteProducts, Rating, Ordering, Product, Photo
 from . import serializers
 from rest_framework import generics
 #from rest_framework.decorators import action
@@ -40,9 +41,22 @@ class ComentViewset(ModelViewSet):
         return super().create(request, *args, **kwargs)
 
 class UserViewset(ModelViewSet):
+    """ using in react-page ordering """
     queryset = CustomUser.objects.all()
     serializer_class = serializers.UserSerializer
 
+    @currentUser
+    def update(self, request, *args, **kwargs):
+        try:
+            partial = kwargs.pop('partial', False)
+            instance = self.get_object()
+            serializer = self.get_serializer(instance, data=request.data, partial=partial)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response({'user':serializer.data, 'error':False})
+        except Exception as _ex:
+            return Response({'user':serializers.UserSerializer(request.user).data, 'error': str(_ex)})
+        
 class FavoriteProductsViewset(ModelViewSet):
     queryset = FavoriteProducts.objects.all()
     serializer_class = serializers.FavoriteProductsSerializer
@@ -60,27 +74,6 @@ class GetMarksAPI(generics.RetrieveUpdateDestroyAPIView):
     def get(self, request, *args, **kwargs):
         marks = Mark.objects.filter(product__id = kwargs.get("pk", None))
         return Response({"marks":serializers.MarkSerializer(marks, many = True).data, "user":serializers.UserSerializer(self.request.user).data})
-
-class GetPostOficesList(generics.ListAPIView):
-    queryset = PostOfices.objects.all()
-    serializer_class = serializers.PostOficesSerializer
-    permission_classes = (IsAuthenticated,)
-
-    def get(self, request, *args, **kwargs):
-        city = self.request.query_params["city"]
-        ofices = PostOfices.objects.filter(name__contains = city, is_active = True)
-        return Response(serializers.PostOficesSerializer(ofices, many = True).data)
-
-class OrderApi(generics.ListAPIView, generics.RetrieveUpdateDestroyAPIView):
-    queryset = Ordering.objects.all()
-    serializer_class = serializers.OrderingSerializer
-    permission_classes = (IsAuthenticated,)
-
-    def get(self, request, *args, **kwargs):
-        product_id = self.request.query_params["productID"]
-        product = Product.objects.get(pk = product_id)
-        salesman = CustomUser.objects.get(pk = product.salesman.id)
-        return Response({"user":serializers.UserSerializer(self.request.user).data, "salesman":serializers.UserSerializer(salesman).data, "product":serializers.ProductSerializer(product).data})
 
 class ReactAPI(generics.RetrieveDestroyAPIView):
     queryset = Product.objects.all()
@@ -199,6 +192,40 @@ class CreateComentApi(generics.CreateAPIView, generics.RetrieveUpdateDestroyAPIV
         request.data["author"] = request.user.id
         request.data._mutable = _mutable
         return super().create(request, *args, **kwargs)
+
+
+class CreateOrdering(generics.ListCreateAPIView):
+    """ using in react-page ordering """
+    serializer_class = serializers.OrderingSerializer
+    queryset = Ordering.objects.all() 
+
+    @currentUser
+    def post(self, request, *args, **kwargs):
+        _mutable = request.data._mutable
+        request.data._mutable = True
+        request.data['user'] = request.user.id 
+        request.data._mutable = _mutable
+        return super().post(request, *args, **kwargs)
+
+    def create(self, request, *args, **kwargs):
+        super().create(request, *args, **kwargs)
+        return HttpResponseRedirect(redirect_to='http://127.0.0.1:8000/')
+        
+class OrderingDataApi(views.APIView):
+
+    @currentUser
+    def post(self, request, *args, **kwargs):
+        product = Product.objects.get(slug = request.data['product_slug'])
+        salesman = CustomUser.objects.get(pk = request.data['salesman'], is_salesman = True)
+        return Response({
+            'current_user':serializers.UserSerializer(request.user).data,
+            'salesman': serializers.UserSerializer(salesman).data,
+            'product':serializers.ProductSerializer(product).data
+        })
+
+
+
+
 
 """ class ProductAPI(views.APIView):
     def get(self, request):

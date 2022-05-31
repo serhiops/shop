@@ -104,13 +104,6 @@ class Product(models.Model):
     def get_absolute_url_add_to_favoriteProducts(self):
         return reverse("myshop:add_to_favoriteProducts", kwargs={"pk":self.pk})
     
-class PostOfices(models.Model):
-    name = models.CharField(max_length=64 , verbose_name="Название")
-    is_active = models.BooleanField(default=True, verbose_name="Активно")
-
-    def __str__(self):
-        return self.name
-
 class FavoriteProducts(models.Model):
     product = models.ForeignKey(Product, on_delete=models.DO_NOTHING, related_name="get_product", verbose_name="Товар")
     added  = models.DateTimeField(auto_now_add=True, verbose_name="Добавлено")
@@ -140,7 +133,8 @@ class Ordering(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="get_user", verbose_name="Покупатель")
     salesman = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="get_sal", verbose_name="Продавец")
     product = models.ForeignKey("Product", on_delete=models.CASCADE, related_name="get_pr", verbose_name="Товар")
-    post_office = models.ForeignKey(PostOfices, on_delete=models.DO_NOTHING, related_name="get_pf", verbose_name="Почтовое отделение")
+    post_office = models.CharField(max_length=150, verbose_name='Почтовое отделение')
+    city = models.CharField(max_length=64, verbose_name="Город получателя", default = 'Чернігів')
     number = models.PositiveIntegerField(verbose_name="Количество", default=1)
     is_done = models.BooleanField(default=False, verbose_name="Выполнено")
     created = models.DateTimeField(auto_now_add=True, verbose_name="Создано")

@@ -359,9 +359,10 @@ def detail_statistic(request, slug_pr):
     }
     return render(request, "myshop/detail_statistic.html", context)
 
+
 @user_passes_test(lambda user: not user.is_salesman, login_url=reverse_lazy(URL_REDIRECT), redirect_field_name=None)
 def ordering(request, pk_sal, slug_prod):
-    salesman = get_object_or_404(CustomUser, is_salesman = True,pk = pk_sal)
+    """ salesman = get_object_or_404(CustomUser, is_salesman = True,pk = pk_sal)
     product = get_object_or_404(Product, slug = slug_prod)
     if request.method == "POST":
         form = forms.OrderingForm(request.POST)
@@ -386,8 +387,21 @@ def ordering(request, pk_sal, slug_prod):
         "product":product,
         "form":form,
         "ChangeOrderingDatajs":True ,
-    }
-    return render(request, "myshop/ordering.html", context)
+    } """
+    if request.method == 'POST':
+        print('asd')
+        salesman = get_object_or_404(CustomUser, is_salesman = True,pk = pk_sal)
+        product = get_object_or_404(Product, slug = slug_prod)
+        send_mail('Новый заказ!',
+                    f'Добрый день, {salesman.first_name} {salesman.last_name}! Только что у вас заказали {product.name} в город {request.user.city}.Контактный номер : {request.user.number_of_phone}',
+                    'serrheylitvinenko@gmail.com',
+                    [salesman.email],
+                    fail_silently=False
+                )
+        messages.success(request, "Вы цспешно оформили заказ! Продавец свяжется с вами в скором времени.")
+        return redirect("myshop:index")
+        
+    return render(request, "myshop/react_pages/ordering/index.html", {'react_ordering':True}) 
 
 def set_done(request,pk_ord):
     ordering = get_object_or_404(Ordering, pk = pk_ord)

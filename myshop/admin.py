@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Product, CustomUser, FavoriteProducts, Coments, Category, Ip, Ordering, PostOfices, Mark, Photo
+from .models import Product, CustomUser, FavoriteProducts, Coments, Category, Ip, Ordering, Mark, Photo
 from .forms import CustomUserCreationForm,ChangeEmail
 from django.contrib.auth.admin import UserAdmin
 
@@ -40,7 +40,7 @@ class CustomUserAdmin(UserAdmin):
 class OrderingAdmin(admin.ModelAdmin):
     list_display = ("id","product")
 
-admin.site.register(PostOfices)
+
 admin.site.register(Ordering, OrderingAdmin)
 admin.site.register(CustomUser)
 admin.site.register(Product, ProductAdmin)

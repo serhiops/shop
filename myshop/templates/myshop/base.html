@@ -17,6 +17,9 @@
     <script defer="defer" src="{% static 'user_chats/static/js/main.e56a1f3b.js' %}"></script>
     <link href="{% static 'user_chats/static/css/main.272cb57f.css' %}" rel="stylesheet">
     {% endif %}
+    {% if react_ordering %}
+    <script defer="defer" src="{% static 'ordering/static/js/main.857bcb82.js' %}"></script>  
+    {% endif %}
     <title>{% block title %}{% endblock %}</title>
 </head>
 
