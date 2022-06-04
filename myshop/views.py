@@ -359,37 +359,9 @@ def detail_statistic(request, slug_pr):
     }
     return render(request, "myshop/detail_statistic.html", context)
 
-
 @user_passes_test(lambda user: not user.is_salesman, login_url=reverse_lazy(URL_REDIRECT), redirect_field_name=None)
 def ordering(request, pk_sal, slug_prod):
-    """ salesman = get_object_or_404(CustomUser, is_salesman = True,pk = pk_sal)
-    product = get_object_or_404(Product, slug = slug_prod)
-    if request.method == "POST":
-        form = forms.OrderingForm(request.POST)
-        if form.is_valid():
-            post_office = form.cleaned_data["post_office"]
-            number = form.cleaned_data['number']
-            Ordering.objects.create(user = request.user, salesman = salesman, product=product, post_office = post_office, number = number)
-            send_mail('Новый заказ!',
-                    f'Добрый день, {salesman.first_name} {salesman.last_name}! Только что у вас заказали {product.name} в город {request.user.city}, отделение почты - {post_office.name}, количиство - {number}.Контактный номер : {request.user.number_of_phone}',
-                    'serrheylitvinenko@gmail.com',
-                    [salesman.email],
-                    fail_silently=False
-                )
-            messages.success(request, "Вы цспешно оформили заказ! Продавец свяжется с вами в скором времени.")
-            return redirect("myshop:index")
-        else:
-            messages.success(request, "Произошла ошибка")
-    else:
-        form = forms.OrderingForm()
-    context = {
-        "salesman":salesman,
-        "product":product,
-        "form":form,
-        "ChangeOrderingDatajs":True ,
-    } """
     if request.method == 'POST':
-        print('asd')
         salesman = get_object_or_404(CustomUser, is_salesman = True,pk = pk_sal)
         product = get_object_or_404(Product, slug = slug_prod)
         send_mail('Новый заказ!',
@@ -398,7 +370,7 @@ def ordering(request, pk_sal, slug_prod):
                     [salesman.email],
                     fail_silently=False
                 )
-        messages.success(request, "Вы цспешно оформили заказ! Продавец свяжется с вами в скором времени.")
+        messages.success(request, "Вы успешно оформили заказ! Продавец свяжется с вами в скором времени.")
         return redirect("myshop:index")
         
     return render(request, "myshop/react_pages/ordering/index.html", {'react_ordering':True}) 

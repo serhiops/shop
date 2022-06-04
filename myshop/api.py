@@ -1,4 +1,3 @@
-from django.http import HttpResponseRedirect
 from .models import CustomUser, Product, Mark, Coments, FavoriteProducts, Rating, Ordering, Product, Photo
 from . import serializers
 from rest_framework import generics
@@ -193,7 +192,6 @@ class CreateComentApi(generics.CreateAPIView, generics.RetrieveUpdateDestroyAPIV
         request.data._mutable = _mutable
         return super().create(request, *args, **kwargs)
 
-
 class CreateOrdering(generics.ListCreateAPIView):
     """ using in react-page ordering """
     serializer_class = serializers.OrderingSerializer
@@ -206,10 +204,6 @@ class CreateOrdering(generics.ListCreateAPIView):
         request.data['user'] = request.user.id 
         request.data._mutable = _mutable
         return super().post(request, *args, **kwargs)
-
-    def create(self, request, *args, **kwargs):
-        super().create(request, *args, **kwargs)
-        return HttpResponseRedirect(redirect_to='http://127.0.0.1:8000/')
         
 class OrderingDataApi(views.APIView):
 
@@ -222,9 +216,6 @@ class OrderingDataApi(views.APIView):
             'salesman': serializers.UserSerializer(salesman).data,
             'product':serializers.ProductSerializer(product).data
         })
-
-
-
 
 
 """ class ProductAPI(views.APIView):

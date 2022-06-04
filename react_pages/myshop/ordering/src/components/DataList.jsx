@@ -3,7 +3,6 @@ import { USER_URL } from "../config";
 import {setError, setSuccess} from "./Alert";
 import getCookie from "../getCookie";
 import $  from "jquery";
-import CSRFToken from "../csrfToken";
 
 const DataList = ({ salesman, product, current_user }) => {
     let [isChange, setIsChange] = useState(false);
@@ -56,18 +55,17 @@ const DataList = ({ salesman, product, current_user }) => {
                         <li className="list-group-item">Цена : {product.price}</li>
                     </ul>
                     <div className="col-3">
-                        <button type="submit" className="btn btn-primary btn-block col-12" onClick={() => { setIsChange(true) }} >Изменить личные данные</button>
+                        <button type="button" className="btn btn-primary btn-block col-12" onClick={() => { setIsChange(true) }} >Изменить личные данные</button>
                     </div>
                 </div>
                 :
                 <div>
-                    <form  name="data-form">
-                        <CSRFToken/>
+                    <form name="data-form">
                         <li className="list-group-item" id='name_user' >Имя: <input type="text" className="form-control" value={name} onChange={e => { setName(e.target.value) }} /></li>
                         <li className="list-group-item" id='name_user'>Фамилия: <input type="text" className="form-control" value={sername} onChange={e => { setSername(e.target.value) }} /></li>
                         <li className="list-group-item" id='phone_number_user'>Контактный номер : <input type="text" className="form-control" value={phoneNumber} onChange={e => { setPhoneNumber(e.target.value) }} /></li>
                         <div className="col-3">
-                            <button type="submit" className="btn btn-success btn-block col-12 " style={{ 'marginTop': '5px' }} onClick={saveUserData}>Изменить личные данные</button>
+                            <button type="button" className="btn btn-success btn-block col-12 " style={{ 'marginTop': '5px' }} onClick={saveUserData}>Изменить личные данные</button>
                         </div>
                     </form>
                 </div>}

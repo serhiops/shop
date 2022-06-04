@@ -23,6 +23,6 @@ urlpatterns = [
     path('api/v1/add-to-cart/', api.AddToCart.as_view()),
     path('api/v1/coment/', api.CreateComentApi.as_view(), name = 'coment-list-api'),
     path('api/v1/coment/<int:pk>/', api.CreateComentApi.as_view(), name = 'detail-coment'),
-    path('api/v1/create-ordering/', api.CreateOrdering.as_view()),
+    path('api/v1/create-ordering/', api.CreateOrdering.as_view(), name='create-ordering'),
     path('api/v1/ordering/', api.OrderingDataApi.as_view())
 ]

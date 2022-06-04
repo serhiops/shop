@@ -1,4 +1,4 @@
-const DEBUG = true;
+const DEBUG = false;
 
 let HOST = null;
 let PROTOCOL = null;
