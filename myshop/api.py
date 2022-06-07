@@ -217,6 +217,10 @@ class OrderingDataApi(views.APIView):
             'product':serializers.ProductSerializer(product).data
         })
 
+class OrderingViewset(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Ordering.objects.all()
+    serializer_class = serializers.OrderingSerializer
+
 
 """ class ProductAPI(views.APIView):
     def get(self, request):

@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
-from .models import CustomUser, Coments, Product, Ordering
+from .models import CustomUser, Product 
 from django.core.exceptions import ValidationError
 from captcha.fields import CaptchaField
 from moneyed import Money, UAH
@@ -82,20 +82,6 @@ class Filter(forms.Form):
             raise ValidationError("Слово должно состоять минимум из 3 букв.")
         return text
 
-
-class ComentForm(forms.ModelForm):
-    class Meta:
-        model = Coments
-        fields = ("text", )
-        widgets = {
-            "text":forms.Textarea(attrs={
-                "class":"form-control",
-                "placeholder":"Будьте вежливы и соблюдайте принципы сообщества",
-                "rows":5,
-                "id":"comentText"
-            }),
-        }
-
 class AddProductForm(forms.ModelForm):
     image = forms.ImageField(label=u'Фотографии', widget=forms.FileInput(attrs={'multiple': 'multiple'}))
     class Meta:
@@ -129,20 +115,6 @@ class AddProductForm(forms.ModelForm):
         if price < Money("0", UAH):
             raise ValidationError("Я сомневаюсь, что вы хотите выставить товар за отрицательную цену:)")
         return price
-
-class OrderingForm(forms.ModelForm):
-    class Meta:
-        model = Ordering
-        fields = ("post_office", "number")
-        widgets = {
-            "post_office":forms.Select(attrs={
-                "class":"form-control",
-            }),
-            "number":forms.TextInput(attrs={
-                "class":"form-control",
-                "type":"number"
-            })
-        }
 
 class DetailFilter(forms.Form):
     city = forms.CharField(widget=forms.TextInput(attrs={"class":"form-control", "id":"cityInput"}), required=False)

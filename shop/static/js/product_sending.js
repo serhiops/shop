@@ -13,7 +13,7 @@ getCookie = name => {
         }
     }
     return cookieValue;
-}
+} 
 
 const acceptOrder = (id) => {
     $.ajax({
